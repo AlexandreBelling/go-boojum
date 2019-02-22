@@ -1,8 +1,8 @@
 package boojum
 
-// #cgo CFLAGS: -I${SRCDIR}/src -I${SRCDIR}/depends
-// #cgo LDFLAGS: -L${SRCDIR}/objects -lsnark-aggregation -lstdc++ -lff -lgomp -lsnark -lgmp -lprocps -lm -lcrypto -lgmpxx
-// #include <./src/libboojum.h>
+// #cgo CFLAGS: -I${SRCDIR}/c-boojum/src -I${SRCDIR}/c-boojum/depends
+// #cgo LDFLAGS: -L${SRCDIR}/compiled -lboojum -lstdc++ -lff -lgomp -lsnark -lgmp -lprocps -lm -lcrypto -lgmpxx
+// #include <./c-boojum/src/libboojum.h>
 import "C"
 import (
 	"sync"
@@ -21,27 +21,31 @@ func runGenerators(dir string) {
 	C.run_generators(C.CString(dir))
 }
 
-// Assign an example_tree to 
+// Assign an example_tree to
 func makeExampleProof(treeBuffer **[]byte) {
+	treePtr := (*unsafe.Pointer)(unsafe.Pointer(&(**treeBuffer)[0]))
 	C.make_example_proof(
-		&unsafe.Pointer(&(**tree_buffer[0])),
+		treePtr,
 	)
 }
 
 func proveAggregation(
-	leftProof *[]byte,
-	rightProof *[]byte,
-	outputProof **[]byte,
+	leftBuffer *[]byte,
+	rightBuffer *[]byte,
+	outputBuffer **[]byte,
 ) {
+	outputPtr := (*unsafe.Pointer)(unsafe.Pointer(&(**outputBuffer)[0]))
+
 	C.prove_aggregation(
-		unsafe.Pointer(&(*leftProof[0])),
-		unsafe.Pointer(&(*rightProof[0])),
-		&unsafe.Pointer(&(**outputProof[0])),
+		unsafe.Pointer(&(*leftBuffer)[0]),
+		unsafe.Pointer(&(*rightBuffer)[0]),
+		outputPtr,
 	)
 }
 
-func verify(treeBuff *[]byte) bool {
-	return C.verify(
-		unsafe.Pointer(&(*treeBuff[0])),
+func verify(treeBuffer *[]byte) (bool) {
+	valid := C.verify(
+		unsafe.Pointer(&(*treeBuffer)[0]),
 	)
+	return bool(valid)
 }

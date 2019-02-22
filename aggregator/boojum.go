@@ -1,7 +1,7 @@
 package boojum
 
 type Boojum struct {
-	dir string,
+	dir string
 }
 
 func New() *Boojum {
@@ -19,29 +19,33 @@ func (boo *Boojum) Initialize() *Boojum {
 	return boo
 }
 
-// RunGenerator fetch the proving and verifications keys
-func (boo *Boojum) RunGenerators() {
+// RunGenerators fetches the proving and verifications keys
+func (boo *Boojum) RunGenerators() *Boojum {
 	runGenerators(boo.dir)
 	return boo
 }
 
-func (boo *Boojum) MakeExampe() *Tree {
+// MakeExample returns an example proof
+func (boo *Boojum) MakeExample() *Tree {
 	tree := newTree()
 	makeExampleProof(&tree.data)
+	return tree
 }
 
-func (boo *Boojum) aggregateTrees(left, right Tree) (output *Tree) {
+// AggregateTrees returns the aggregated tree
+func (boo *Boojum) AggregateTrees(left, right Tree) (output *Tree) {
 	output = newTree()
 	proveAggregation(
 		left.data,
 		right.data,
-		&output.data
+		&output.data,
 	)
 	return output
 } 
 
-func (boo *Boojum) verify(tree *Tree) bool {
+// Verify returns a boolean indicating that a tree is valid
+func (boo *Boojum) Verify(tree *Tree) bool {
 	return verify(
-		tree.data
+		tree.data,
 	)
 }
