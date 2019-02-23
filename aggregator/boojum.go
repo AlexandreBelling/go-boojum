@@ -1,13 +1,16 @@
 package boojum
 
+// Boojum is struct wrapper for boojum aggregator
 type Boojum struct {
 	dir string
 }
 
+// New is a boojum constructor
 func New() *Boojum {
 	return &Boojum{dir: ""}
 }
 
+// WithDir attaches a directory to a boojum
 func (boo *Boojum) WithDir(dir string) *Boojum {
 	boo.dir = dir
 	return boo
