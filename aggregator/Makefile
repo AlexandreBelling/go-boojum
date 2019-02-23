@@ -3,7 +3,7 @@ build:
 
 clear-build:
 	mkdir -p ./c-boojum/build
-	# rm -rf ./c-boojum/build/*
+	rm -rf ./c-boojum/build/*
 
 clear-compiled:
 	mkdir -p compiled
