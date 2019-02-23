@@ -67,9 +67,9 @@ func (t *Tree) Schedule(pendings chan Tree) {
 
 		t.left.payload = &leftPayload
 		t.right.payload = &rightPayload 
-	}
 
-	pendings <- *t
+		pendings <- *t
+	}
 }
 
 // Round keep tracks of aggregation rounds
@@ -115,7 +115,8 @@ func (rou *Round) Launch() {
 // Verify the round has been correctly executed
 func (rou *Round) Verify(boo *aggregator.Boojum) (bool) {
 
-	*rou.Root.payload = <- rou.Root.payloadChan
+	rootPayload := <- rou.Root.payloadChan
+	*rou.Root.payload = rootPayload
 	return boo.Verify(rou.Root.payload)
 
 }
@@ -132,8 +133,6 @@ func (w *Worker) StartConsuming(pendings chan Tree, done chan bool) {
 		case <- done:
 			return
 		case job := <- pendings:
-
-			println(job.height)
 
 			// Scheduler ensures that whenever job is received
 			// left and right are already assigned
