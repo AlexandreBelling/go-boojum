@@ -1,3 +1,3 @@
-[submodule "boojum/c-boojum"]
-	path = boojum/c-boojum
+[submodule "aggregator/c-boojum"]
+	path = aggregator/c-boojum
 	url = git@github.com:AlexandreBelling/boojum.git
