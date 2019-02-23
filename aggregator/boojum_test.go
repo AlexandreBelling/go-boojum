@@ -1,4 +1,4 @@
-package boojum
+package aggregator
 
 import (
 	"testing"

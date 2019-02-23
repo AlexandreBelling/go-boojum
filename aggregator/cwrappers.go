@@ -1,4 +1,4 @@
-package boojum
+package aggregator
 
 // #cgo CFLAGS: -I${SRCDIR}/c-boojum/src -I${SRCDIR}/c-boojum/depends
 // #cgo LDFLAGS: -L${SRCDIR}/compiled -lboojum -lstdc++ -lff -lgomp -lsnark -lgmp -lprocps -lm -lcrypto -lgmpxx

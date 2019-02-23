@@ -1,4 +1,4 @@
-package boojum
+package aggregator
 
 // Boojum is struct wrapper for boojum aggregator
 type Boojum struct {

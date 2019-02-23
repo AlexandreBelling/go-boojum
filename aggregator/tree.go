@@ -1,4 +1,4 @@
-package boojum
+package aggregator
 
 //Tree is a container
 type Tree struct {
