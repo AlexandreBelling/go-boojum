@@ -22,30 +22,48 @@ func runGenerators(dir string) {
 }
 
 // Assign an example_tree to
-func makeExampleProof(treeBuffer **[]byte) {
-	treePtr := (*unsafe.Pointer)(unsafe.Pointer(&(**treeBuffer)[0]))
+func makeExampleProof(treeBuffer **byte) {
+
+	
+	freeMeAfter := unsafe.Pointer(*treeBuffer)
+	defer C.free(freeMeAfter)
+
+	var treePtr *byte
+	treePtr = nil
+	treePtrC := (*unsafe.Pointer)(unsafe.Pointer(&treePtr))
+	
 	C.make_example_proof(
-		treePtr,
+		treePtrC,
 	)
+
+	*treeBuffer = treePtr
 }
 
 func proveAggregation(
-	leftBuffer *[]byte,
-	rightBuffer *[]byte,
-	outputBuffer **[]byte,
+	leftBuffer *byte,
+	rightBuffer *byte,
+	outputBuffer **byte,
 ) {
-	outputPtr := (*unsafe.Pointer)(unsafe.Pointer(&(**outputBuffer)[0]))
+
+	freeMeAfter := unsafe.Pointer(*outputBuffer)
+	defer C.free(freeMeAfter)
+
+	var outputPtr *byte
+	outputPtr = nil
+	outputPtrC := (*unsafe.Pointer)(unsafe.Pointer(&outputPtr))
 
 	C.prove_aggregation(
-		unsafe.Pointer(&(*leftBuffer)[0]),
-		unsafe.Pointer(&(*rightBuffer)[0]),
-		outputPtr,
+		unsafe.Pointer(&(*leftBuffer)),
+		unsafe.Pointer(&(*rightBuffer)),
+		(*unsafe.Pointer)(outputPtrC),
 	)
+
+	*outputBuffer = outputPtr
 }
 
-func verify(treeBuffer *[]byte) (bool) {
+func verify(treeBuffer *byte) (bool) {
 	valid := C.verify(
-		unsafe.Pointer(&(*treeBuffer)[0]),
+		unsafe.Pointer(&(*treeBuffer)),
 	)
 	return bool(valid)
 }

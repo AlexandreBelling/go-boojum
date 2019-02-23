@@ -2,13 +2,13 @@ package boojum
 
 //Tree is a container
 type Tree struct {
-	data *[]byte
+	data *byte
 }
 
 func newTree() (*Tree) {
-	data := make([]byte, 1)
+	var data *byte
 	return &Tree{
-		data : &data,
+		data : data,
 	}
 }
 
