@@ -21,4 +21,6 @@ clear-setup:
 run-test: clear-setup
 	go test ; notify-send 'Done testing'
 
+build-all: clear-build build clear-compiled fetch-compiled
+
 all: clear-build build clear-compiled fetch-compiled run-test
