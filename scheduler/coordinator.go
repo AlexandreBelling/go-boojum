@@ -109,16 +109,14 @@ func NewRound(payloads []aggregator.Tree) (rou *Round) {
 func (rou *Round) Launch() {
 
 	rou.Root.Schedule(rou.pendings)
-
 }
 
 // Verify the round has been correctly executed
 func (rou *Round) Verify(boo *aggregator.Boojum) (bool) {
 
 	rootPayload := <- rou.Root.payloadChan
-	*rou.Root.payload = rootPayload
+	rou.Root.payload = &rootPayload
 	return boo.Verify(rou.Root.payload)
-
 }
 
 // Worker is responsible to perform aggregation
