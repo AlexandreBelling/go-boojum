@@ -13,9 +13,3 @@ func newTree() (*Tree) {
 		data : data,
 	}
 }
-
-// Free applies the custom free function on the remaining elements
-func (t *Tree) Free() {
-	memFreeTree(t.data)
-}
-

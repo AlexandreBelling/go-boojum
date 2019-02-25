@@ -67,9 +67,3 @@ func verify(treeBuffer *byte) (bool) {
 	)
 	return bool(valid)
 }
-
-func memFreeTree(treeBuffer *byte) {
-	C.mem_free_tree(
-		unsafe.Pointer(treeBuffer),
-	)
-}
