@@ -66,6 +66,22 @@ The protocol [handle](https://docs.google.com/presentation/d/1fL0mBF5At4ojW0Hhbv
 
 * Adding support for worker's signature verification in the circuits
 
+
+## Prerequisite
+
+In order to build the source we need the following dependencies
+
+* Docker
+
+## Runing the demo
+
+In this demo, a single worker go-routine aggregates a total of 8 proofs, the aggregation process is controlled by a scheduler go-routine who then verify the aggregated proof.
+
+### With docker
+
+    docker build . -t demo-boojum
+    docker run demo-boojum
+
 ## Related work
 
 This works makes use of
@@ -74,24 +90,3 @@ This works makes use of
 * [Incrementally Verifiable Computation or Proofs of Knowledge Imply Time/Space Efficiency](https://link.springer.com/content/pdf/10.1007%2F978-3-540-78524-8_1.pdf)
 * [Scalable Zero Knowledge via Cycles of Elliptic Curves](https://eprint.iacr.org/2014/595.pdf)
 * [Aggregation protocol for large scale Byzantine committee](https://docs.google.com/presentation/d/1fL0mBF5At4ojW0HhbvBQ2yJHA3_q8q8kiioC6WvY9g4/edit#slide=id.p)
-
-## Prerequisite
-
-In order to build the source we need the following dependencies
-
-* Ubuntu 18.04
-* build-essential
-* libomp
-* libgmp
-* libcrypto
-* libgmpcc
-* go 1.11.4
-
-## Runing the demo
-
-    git clone https://github.com/AlexandreBelling/go-boojum
-    git subdmoule update --init --recursive
-    cd aggregator
-    make build-all
-    cd ../scheduler
-    go test
