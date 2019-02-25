@@ -32,9 +32,19 @@ The leaf nodes (ie: the batch of proofs to be aggregated together) are inputed a
 * A proof
 * The primary inputs of the circuits.
 
+## On-chain verification
+
 Each parent node (ie: aggregated proof) takes the hash of the previous proofs as primary inputs. Therefore during verification of the root proof, we need to first reconstruct its input by recursively hashing the intermediary nodes.
 
     Input = H(InputLeft, InputRight, ProofLeft, ProofRight, VKleft, VkRight)
+
+Currently each aggregated proofs weights 355 bytes in average (373B for MNT6 and 337B for MNT4). And each verification key (on MNT4 only) weights 717B. This adds up to (355 + 337 + 717 = 1409B) for each proof. This represents an extra cost of 88641 Gas for each proof assuming we can neglect the zero-bytes (only taking account of the transaction data gas cost).
+
+This could be improved by storing the hash of each leaf proof on the verifier contract and simply refers to that during the verification. Doing so, we would be able to reduce the extra data gas cost per proof to ~22k. There are probably ways to reduce it even more by optimizing the tree construction.
+
+No extensive benchmarks have been performed yet, but if we estimate the cost of a verification and if we neglect the cost of hashing (ie a HashCost << DataCost) on a precompile to be in the order of 1M gas, with a block gas limit of 8MGas this methods can be estimated to fit in the order of ~75 zk-snark proofs per blocks. With the first optimization, this number could go up to over 300.
+
+## Off-chain aggregation
 
 Each aggregation steps takes about 20sec, that means it would takes over 5.5 hours to aggregate 1024 proofs. However, the tree structure makes it easy to possible to distribute across a pool of worker.
 

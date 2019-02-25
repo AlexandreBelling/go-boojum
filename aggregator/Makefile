@@ -1,5 +1,5 @@
 build:
-	cd c-boojum/build && cmake .. && make boojum; notify-send 'Done building'
+	cd c-boojum/build && cmake .. && make boojum
 
 clear-build:
 	mkdir -p ./c-boojum/build
