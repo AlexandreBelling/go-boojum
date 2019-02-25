@@ -22,7 +22,7 @@ This is also similar to Proof Carrying Data system that are described in a simpl
 
 The main difference with boojum is the PCD takes assignment only for a predetermined set of programs. This is because the verifier of the circuit wants to know what is being verified and to be sure that the PCD doesn't contains rogue proofs for an unrelated circuits.
 
-Here, we are not interested in what the proof contains but rather in if they are valid. Our goal is to convert a batch of proof for any* circuits into a single one. Additionally, PCDs works in a sequentials way while we use a hierarchical structure here.
+Here, we are not interested in what the proof contains but rather in if they are valid. Our goal here is to convert a batch of proof for any* circuits into a single one. Additionally, PCDs works in a sequentials way while we use a hierarchical structure here.
 
 ![PCD circuit](./docs/tree_of_proof.png)
 
@@ -63,7 +63,7 @@ This works makes use of
 * [Succinct Non-Interactive Zero Knowledge for a von Neumann Architecture](https://eprint.iacr.org/2013/879.pdf)
 * [Incrementally Verifiable Computation or Proofs of Knowledge Imply Time/Space Efficiency](https://link.springer.com/content/pdf/10.1007%2F978-3-540-78524-8_1.pdf)
 * [Scalable Zero Knowledge via Cycles of Elliptic Curves](https://eprint.iacr.org/2014/595.pdf)
-* [Aggregation protocol for large scale Byzantine committee](https://docs.google.com/presentation/d/1fL0mBF5At4ojW0HhbvBQ2yJHA3_q8q8kiioC6WvY9g4/edit#slide=id.p) 
+* [Aggregation protocol for large scale Byzantine committee](https://docs.google.com/presentation/d/1fL0mBF5At4ojW0HhbvBQ2yJHA3_q8q8kiioC6WvY9g4/edit#slide=id.p)
 
 ## Prerequisite
 
@@ -82,6 +82,6 @@ In order to build the source we need the following dependencies
     git clone https://github.com/AlexandreBelling/go-boojum
     git subdmoule update --init --recursive
     cd aggregator
-    make all
+    make build-all
     cd ../scheduler
     go test
