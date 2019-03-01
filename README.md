@@ -1,6 +1,7 @@
 # Go-boojum
 
-A demo implementation of ZK-SNARK aggregation
+Boojum is an WIP protocol that aims at massively reducing the cost of zk verification on a blockchain through ZK-Snark proof aggregation.
+A demo implementation of ZK-SNARK aggregation.
 
 ## Security
 
@@ -38,34 +39,41 @@ Each parent node (ie: aggregated proof) takes the hash of the previous proofs as
 
     Input = H(InputLeft, InputRight, ProofLeft, ProofRight, VKleft, VkRight)
 
-Currently each aggregated proofs weights 355 bytes in average (373B for MNT6 and 337B for MNT4). And each verification key (on MNT4 only) weights 717B. This adds up to (355 + 337 + 717 = 1409B) for each proof. This represents an extra cost of 88641 Gas for each proof assuming we can neglect the zero-bytes (only taking account of the transaction data gas cost).
+Although no proper benchmark has been run yet. We can estimate that currently each aggregated proofs weights 355 bytes in average (373B for MNT6 and 337B for MNT4). And each verification key (on MNT4 only) weights 717B. This adds up to (355 + 337 + 717 = 1409B) for each proof. This represents an extra cost of 88641 Gas for each proof assuming we can neglect the zero-bytes and the cost.
 
-This could be improved by storing the hash of each leaf proof on the verifier contract and simply refers to that during the verification. Doing so, we would be able to reduce the extra data gas cost per proof to ~22k. There are probably ways to reduce it even more by optimizing the tree construction.
+This estimation does not takes into account the cost of re-hashing the merkle tree. The current implementation makes use of subset-sum hash which is natively implemented in libsnark but which is broken today. Some of the considered options are:
 
-No extensive benchmarks have been performed yet, but if we estimate the cost of a verification and if we neglect the cost of hashing (ie a HashCost << DataCost) on a precompile to be in the order of 1M gas, with a block gas limit of 8MGas this methods can be estimated to fit in the order of ~75 zk-snark proofs per blocks. With the first optimization, this number could go up to over 300.
+* Pedersen Hash (We could re-use zcash implementation)
+* MiMc
+* David-Meyers
+
+At this point, all I know for sure is that the cost of hashing will be linear in the size of the payload.
+
+## Improving the size of the payload
+
+In this aggregation protocol is that we don't care this much about the intermediary proofs. The only thing that matter is that *theses proofs exist and have been successfully verified* the same applies for the leafs proofs (ie: the proofs that are submitted to the process of aggregation).
+
+In the end what an end-user wants to prove is only that they have a valid assignment for a given public input and a given circuit. Therefore, instead of publishing the proofs on-chain we could simply publish a hash of them. The proof would have to be communicated off-chain to the aggregator pool though.
 
 ## Off-chain aggregation
 
 Each aggregation steps takes about 20sec, that means it would takes over 5.5 hours to aggregate 1024 proofs. However, the tree structure makes it easy to possible to distribute across a pool of worker.
 
-The pool would load balance the process of aggregation and each worker would be rewarded for its work. For this purpose we can add a signature verification in each aggregated proof so that the workers stay protected from impersonation.
+The pool would load balance the process of aggregation and each worker would be rewarded for its work. For this purpose we can add an address in the verification in order to protect the worker from impersonation. Adding rewards could however also introduce the issue of byzantine behaviour : a powerfull prover would be incentivized to steal other's job. This part is still a WIP.
 
 We would also need an aggregation protocol that ensure no attacker can effectively prevent or slow down the aggregation process.
 
 The protocol [handle](https://docs.google.com/presentation/d/1fL0mBF5At4ojW0HhbvBQ2yJHA3_q8q8kiioC6WvY9g4/edit#slide=id.p) described here is currently being considered as the aggregation protocol. It is tolerant to byzantine failures and scales wells with large networks. However, the current implementations uses a producer - consumer approach.
 
-## Potential improvements
+## Possible adaptation with Handel
 
-* Switching to either pedersen hashs as a CRH instead of libsnark's subset sum hash.
+Some modification would have to be done to the protocol though because the problematic has a few small difference with BLS signature aggregation.
 
-* Improving the serialization and deserialization of the proofs using protobuff.
+* On handel each node manage a unique private key in order to sign an aggregate. Therefore, before the aggregation the signer already knows what job he is going to perform. On the other side, with boojum each worker can possibly have several jobs and the pool needs a consensus on who is going to aggregate which proofs. This is still a WIP.
 
-* Using handel as an aggregation protocol
+* On handel, when a worker is failing the previous worker has the possibility to send its job to next worker and that helps guaranteeing the BFTolerance of the protocol. With boojum, its more complicate because the next is going to aggregate two proofs from a different EC. Hence, the non-aggregated proof would have to be sent to the n+2 aggregator if he exists.
 
-* Reducing the data size overhead of each aggregated proofs. Today, each proof eats 90k gas but it is be possible to decrease this as we encode currently redundant data and believe we could achieve 20k per proof.
-
-* Adding support for worker's signature verification in the circuits
-
+In order to address the second issue, I am currently thinking about using a translation circuit in exactly the same way that PCD works. Each aggregation steps would then takes proofs on a single curve as input and we would no longer have this incompatibility problem.
 
 ## Prerequisite
 
