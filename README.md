@@ -55,6 +55,10 @@ In this aggregation protocol is that we don't care this much about the intermedi
 
 In the end what an end-user wants to prove is only that they have a valid assignment for a given public input and a given circuit. Therefore, instead of publishing the proofs on-chain we could simply publish a hash of them. The proof would have to be communicated off-chain to the aggregator pool though.
 
+We those improvement the circuit can be represented as below:
+
+![dqs](./docs/aggregation_circuit_improved.png)
+
 ## Off-chain aggregation
 
 Each aggregation steps takes about 20sec, that means it would takes over 5.5 hours to aggregate 1024 proofs. However, the tree structure makes it easy to possible to distribute across a pool of worker.
