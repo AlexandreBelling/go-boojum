@@ -15,17 +15,13 @@ We propose here a circuit-agnostic solution to combine multiple ppzksnarks proof
 
 ![Aggregation Circuits](./docs/aggregation_circuits.png)
 
-Both circuits are in facts almost identicals, they only differs in the sense that they are not defined on the same groups. Any proof generated on one of theses can be verified recursively inside a proof on the other one. This is a necessary conditions for constructing a recursive SNARKs.
+Both circuits are in facts almost identicals, they only differs in the sense that they are not defined on the same EC. Any proof generated on one of theses can be verified recursively inside a proof on the other one. This is a necessary conditions for constructing a practical recursive SNARKs.
 
-This is also similar to Proof Carrying Data system that are described in a simplified fashion below.
+One of the main difference with PCD is that boojum accepts a verification key as a public parameter. This is because the aggregation prover cannot make assumption on the two inputs he is going to verify. They could come from any circuits that has one single primary input (any circuit can be converted to a single input circuit using a hash instead of the actual inputs).
 
-![PCD circuit](./docs/PCD_circuit.png)
+Additionnally, PCD recursive aggregation works in a sequential way: assignments are added one after the others in the proof while we describe a protocol aggregating proofs in a hierarchical fashion.
 
-The main difference with boojum is the PCD takes assignment only for a predetermined set of programs. This is because the verifier of the circuit wants to know what is being verified and to be sure that the PCD doesn't contains rogue proofs for an unrelated circuits.
-
-Here, we are not interested in what the proof contains but rather in if they are valid. Our goal here is to convert a batch of proof for any* circuits into a single one. Additionally, PCDs works in a sequentials way while we use a hierarchical structure here.
-
-![PCD circuit](./docs/tree_of_proof.png)
+![tree](./docs/tree_of_proof.png)
 
 The leaf nodes (ie: the batch of proofs to be aggregated together) are inputed as:
 
@@ -39,15 +35,15 @@ Each parent node (ie: aggregated proof) takes the hash of the previous proofs as
 
     Input = H(InputLeft, InputRight, ProofLeft, ProofRight, VKleft, VkRight)
 
-Although no proper benchmark has been run yet. We can estimate that currently each aggregated proofs weights 355 bytes in average (373B for MNT6 and 337B for MNT4). And each verification key (on MNT4 only) weights 717B. This adds up to (355 + 337 + 717 = 1409B) for each proof. This represents an extra cost of 88641 Gas for each proof assuming we can neglect the zero-bytes and the cost.
+Although no proper benchmark has been run yet. We can estimate that currently each aggregated proofs weights 355 bytes in average (373B for MNT6 and 337B for MNT4). And each verification key (on MNT4 only) weights 717B. This adds up to (355 + 337 + 717 = 1409B) for each proof. This represents an extra cost of 88641 Gas for each proof assuming we can neglect the zero-bytes.
 
-This estimation does not takes into account the cost of re-hashing the merkle tree. The current implementation makes use of subset-sum hash which is natively implemented in libsnark but which is broken today. Some of the considered options are:
+This estimation also does not takes into account the cost of re-hashing the merkle tree. The current implementation makes use of subset-sum hash which is natively implemented in libsnark but which is broken today. 
+
+Some of the considered options are [WIP]:
 
 * Pedersen Hash (We could re-use zcash implementation)
 * MiMc
 * David-Meyers
-
-At this point, all I know for sure is that the cost of hashing will be linear in the size of the payload.
 
 ## Improving the size of the payload
 
@@ -57,7 +53,7 @@ In the end what an end-user wants to prove is only that they have a valid assign
 
 We those improvement the circuit can be represented as below:
 
-![dqs](./docs/aggregation_circuit_improved.png)
+![aggregation_circuit_improved](./docs/aggregation_circuit_improved.png)
 
 ## Off-chain aggregation
 
@@ -65,19 +61,17 @@ Each aggregation steps takes about 20sec, that means it would takes over 5.5 hou
 
 The pool would load balance the process of aggregation and each worker would be rewarded for its work. For this purpose we can add an address in the verification in order to protect the worker from impersonation. Adding rewards could however also introduce the issue of byzantine behaviour : a powerfull prover would be incentivized to steal other's job. This part is still a WIP.
 
-We would also need an aggregation protocol that ensure no attacker can effectively prevent or slow down the aggregation process.
+The aggregation protocol must also ensure that no attacker can effectively prevent nor slow down the aggregation process. The protocol [handle](https://docs.google.com/presentation/d/1fL0mBF5At4ojW0HhbvBQ2yJHA3_q8q8kiioC6WvY9g4/edit#slide=id.p) described here is currently being considered as the aggregation protocol. It is tolerant to byzantine failures and scales wells with large networks.
 
-The protocol [handle](https://docs.google.com/presentation/d/1fL0mBF5At4ojW0HhbvBQ2yJHA3_q8q8kiioC6WvY9g4/edit#slide=id.p) described here is currently being considered as the aggregation protocol. It is tolerant to byzantine failures and scales wells with large networks. However, the current implementations uses a producer - consumer approach.
+## [WIP] Adapted design using Handel
 
-## Possible adaptation with Handel
+The aggregation mechanism as it is described above is not directly compatible with Handel. Three issues that have to be addressed in order to make the mechanism compatible with Handel.
 
-Some modification would have to be done to the protocol though because the problematic has a few small difference with BLS signature aggregation.
+* On handel each node manage a unique private key in order to sign an aggregate. Therefore, before the aggregation the signer already knows what job he is going to perform. On the other side, with boojum each worker can possibly have several jobs and the pool needs a consensus on who is going to aggregate which proofs. A mechanism to decentralize this should be carefully designed.
 
-* On handel each node manage a unique private key in order to sign an aggregate. Therefore, before the aggregation the signer already knows what job he is going to perform. On the other side, with boojum each worker can possibly have several jobs and the pool needs a consensus on who is going to aggregate which proofs. This is still a WIP.
+* On handel, when a worker is waiting a proof from a faulty worker (timeout or bad proof), it has the possibility to send its job to the next level and that helps guaranteeing the BFTolerance of the protocol. It is not possible to do it with the current design because we are alternating with differents EC.
 
-* On handel, when a worker is failing the previous worker has the possibility to send its job to next worker and that helps guaranteeing the BFTolerance of the protocol. With boojum, its more complicate because the next is going to aggregate two proofs from a different EC. Hence, the non-aggregated proof would have to be sent to the n+2 aggregator if he exists.
-
-In order to address the second issue, I am currently thinking about using a translation circuit in exactly the same way that PCD works. Each aggregation steps would then takes proofs on a single curve as input and we would no longer have this incompatibility problem.
+* Handel needs an aggregation function that is commutative and associative. Boojum's current design uses a "kind of Merkle Tree" based on snark friendly hash functions and it is neither commutative nor associative. A few adaptations should be made in boojum in order to work. Following a discussion with N. Liochon and O. Begassat It might not be an imperative as long as anyone can know "in which order" the tree was built so it can be properly verified in the end.
 
 ## Prerequisite
 
