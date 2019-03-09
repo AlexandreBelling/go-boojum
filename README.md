@@ -33,11 +33,13 @@ The leaf nodes (ie: the batch of proofs to be aggregated together) are inputed a
 
 Each parent node (ie: aggregated proof) takes the hash of the previous proofs as primary inputs. Therefore during verification of the root proof, we need to first reconstruct its input by recursively hashing the intermediary nodes.
 
-    Input = H(InputLeft, InputRight, ProofLeft, ProofRight, VKleft, VkRight)
+![verification](./docs/verification.png)
+
+### Gas Cost estimation
 
 Although no proper benchmark has been run yet. We can estimate that currently each aggregated proofs weights 355 bytes in average (373B for MNT6 and 337B for MNT4). And each verification key (on MNT4 only) weights 717B. This adds up to (355 + 337 + 717 = 1409B) for each proof. This represents an extra cost of 88641 Gas for each proof assuming we can neglect the zero-bytes.
 
-This estimation also does not takes into account the cost of re-hashing the merkle tree. The current implementation makes use of subset-sum hash which is natively implemented in libsnark but which is broken today. 
+This estimation also does not takes into account the cost of re-hashing the merkle tree. The current implementation makes use of subset-sum hash which is natively implemented in libsnark but which is broken today.
 
 Some of the considered options are [WIP]:
 
@@ -51,7 +53,7 @@ In this aggregation protocol is that we don't care this much about the intermedi
 
 In the end what an end-user wants to prove is only that they have a valid assignment for a given public input and a given circuit. Therefore, instead of publishing the proofs on-chain we could simply publish a hash of them. The proof would have to be communicated off-chain to the aggregator pool though.
 
-We those improvement the circuit can be represented as below:
+Those improvement the circuit can be represented as below:
 
 ![aggregation_circuit_improved](./docs/aggregation_circuit_improved.png)
 
