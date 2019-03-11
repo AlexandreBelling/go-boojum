@@ -20,7 +20,7 @@ Both circuits represents the following predicate: "I have run a ZK-SNARK verifie
 
 This heuristic is furthermore applied to our circuits, thanks to that we enable proof for an instance of boojum circuit to be used as an input of another instance. Hence, we can recursively aggregate proof with the same two circuits.
 
-The two circuits differs in the sense that they are not defined on the same EC. Any proof generated on one of theses can be verified recursively inside a proof on the other one. This is a necessary conditions for constructing a practical recursive SNARKs. We are using the elliptic curve cycle MNT4-MNT6 described [here](https://eprint.iacr.org/2014/595.pdf).
+The two circuits differs in the sense that they are not defined on the same EC. Any proof generated on one of theses can be verified recursively inside a proof on the other one. This is a necessary condition for constructing a practical recursive SNARKs. We are using the elliptic curve cycle MNT4-MNT6 described [here](https://eprint.iacr.org/2014/595.pdf).
 
 One of the main difference with PCD is that Boojum accepts a verification key as a public parameter. The generator does not make assumption over the proof he is going to verify. The concern here is not about what circuit is being proved on but rather to convince that a verifier has run successfully for a given triplet (proof, verification key, primary input).
 
@@ -48,7 +48,7 @@ Each parent node (ie: aggregated proof) takes the hash of the previous proofs as
 
 Although no proper benchmark has been run yet. We can estimate that currently each aggregated proofs weights 355 bytes in average (373B for MNT6 and 337B for MNT4). And each verification key (on MNT4 only) weights 717B. This adds up to (355 + 337 + 717 = 1409B) for each proof. This represents an extra cost of 88641 Gas for each proof assuming we can neglect the zero-bytes.
 
-This estimation also does not takes into account the cost of re-hashing the merkle tree. The current implementation of the hash function available in libsnark. It is worth noting that this hash function has been cryptanalyzed (see this [article](http://www.math.ttu.edu/~cmonico/research/linearhash.pdf))
+This estimation also does not takes into account the cost of re-hashing the merkle tree. We use the current implementation of the hash function available in libsnark. It is worth noting that *this hash function has been cryptanalyzed (see this [article](http://www.math.ttu.edu/~cmonico/research/linearhash.pdf))*
 
 Other options are being considered as a potential replacement [WIP]:
 
@@ -103,7 +103,7 @@ In order to build the source we need the following dependencies
 
 ## Runing the demo
 
-In this demo, a single worker go-routine aggregates a total of 8 proofs, the aggregation process is controlled by a scheduler go-routine who then verify the aggregated proof.
+In this demo, a single worker go-routine aggregates a total of 8 proofs, the aggregation process is controlled by a scheduler go-routine who then verifies the aggregated proof.
 
 ### With docker
 
