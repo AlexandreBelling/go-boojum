@@ -1,11 +1,10 @@
 # Go-boojum
 
-Boojum is an WIP protocol that aims at massively reducing the cost of zk verification on a blockchain through ZK-Snark proof aggregation.
-A demo implementation of ZK-SNARK aggregation.
+Boojum is an WIP protocol that aims at massively reducing the cost of ZK-SNARK verification on a blockchain through a proof aggregation scheme. A PoC demo implementation of ZK-SNARK aggregation is available in this repository.
 
 ## Security
 
-**The code in this repository is not suitable for production. It is PoC grade and has not undergone extensive testing. It additionally leaks memory.**
+**The code in this repository is not suitable for production. It is PoC grade and has not undergone extensive testing. It additionally leaks memory and has some known flaws.**
 
 ## Overview
 
@@ -15,7 +14,7 @@ We propose here a predicate-agnostic solution to combine multiple ppzksnarks pro
 
 ![Aggregation Circuits](./docs/aggregation_circuits.png)
 
-Both circuits represents the following predicate: "I have a run a zk-snark verifier algorithm on 2 proofs, vk and primary inputs and their output was 1 in both". This will work for any circuits with a primary input of length 1 but this is however not a practical issue. Given a snark friendly CRH, we can always convert a multi-primary-input circuit into a single-primary-input by passing the primary inputs as auxilliary and adding the following constraint :
+Both circuits represents the following predicate: "I have run a ZK-SNARK verifier algorithm on 2 given triplets (proofs, vk and primary inputs) and their output was 1 in both". This will work only for any circuits with a primary input of length 1 but this is however not a practical issue : given a snark friendly cryptographic hash function, we can always convert a multi-primary-input circuit into a single-primary-input by passing the primary inputs as auxilliary and adding the following constraint :
 
     Primary = Hash(Auxilliary)
 
@@ -23,7 +22,7 @@ This heuristic is furthermore applied to our circuits, thanks to that we enable 
 
 The two circuits differs in the sense that they are not defined on the same EC. Any proof generated on one of theses can be verified recursively inside a proof on the other one. This is a necessary conditions for constructing a practical recursive SNARKs. We are using the elliptic curve cycle MNT4-MNT6 described [here](https://eprint.iacr.org/2014/595.pdf).
 
-One of the main difference with PCD is that boojum accepts a verification key as a public parameter. The generator does not make assumption over the proof he is going to verify. The concern here is not about what circuit is being proved on but rather to convince the verifier run succesfully.
+One of the main difference with PCD is that Boojum accepts a verification key as a public parameter. The generator does not make assumption over the proof he is going to verify. The concern here is not about what circuit is being proved on but rather to convince that a verifier has run successfully for a given triplet (proof, verification key, primary input).
 
 Additionnally, PCD recursive aggregation works in a sequential way: assignments are added one after the others in the proof while we describe a protocol aggregating proofs in a hierarchical fashion.
 
@@ -41,41 +40,60 @@ Each parent node (ie: aggregated proof) takes the hash of the previous proofs as
 
 ![verification](./docs/verification.png)
 
+    In yellow, the elements that are sent in the payload to the verifier.
+    In grey, the elements that are already known to the verifier
+    In blue, the elements that are recomputed during verification by the verifier
+
 ### Gas Cost estimation
 
 Although no proper benchmark has been run yet. We can estimate that currently each aggregated proofs weights 355 bytes in average (373B for MNT6 and 337B for MNT4). And each verification key (on MNT4 only) weights 717B. This adds up to (355 + 337 + 717 = 1409B) for each proof. This represents an extra cost of 88641 Gas for each proof assuming we can neglect the zero-bytes.
 
-This estimation also does not takes into account the cost of re-hashing the merkle tree. The current implementation makes use of subset-sum hash which is natively implemented in libsnark but which is broken today.
+This estimation also does not takes into account the cost of re-hashing the merkle tree. The current implementation of the hash function available in libsnark. It is worth noting that this hash function has been cryptanalyzed (see this [article](http://www.math.ttu.edu/~cmonico/research/linearhash.pdf))
 
-Some of the considered options are [WIP]:
+Other options are being considered as a potential replacement [WIP]:
 
 * Pedersen Hash (We could re-use zcash implementation)
 * MiMc
 * David-Meyers
 
-## Improving the size of the payload
+In any case the overhead for each aggregated snark is significantly lower compared to the cost of a verification.
+
+### Improving the size of the payload
 
 In this aggregation protocol is that we don't care this much about the intermediary proofs. The only thing that matter is that *theses proofs exist and have been successfully verified* the same applies for the leafs proofs (ie: the proofs that are submitted to the process of aggregation).
 
 In the end what an end-user wants to prove is only that they have a valid assignment for a given public input and a given circuit. Therefore, instead of publishing the proofs on-chain we could simply publish a hash of them. The proof would have to be communicated off-chain to the aggregator pool though.
 
-Those improvement the circuit can be represented as below:
+Those improvement of the circuit are represented below:
 
 ![aggregation_circuit_improved](./docs/aggregation_circuit_improved.png)
 
 ## Off-chain aggregation
 
-Each aggregation steps takes about 20sec, that means it would takes over 5.5 hours to aggregate 1024 proofs. However, the tree structure makes it possible to distribute across a pool of worker. The problem now is how to organize those workers with an aggregation protocol.
+The tree structure of the aggregated proof makes it possible to distribute the proving computation across a pool of worker. Given that each aggregation steps takes about 20sec, it would takes over 5.5 hours to aggregate 1024 proofs. However, in a perfectly distributed case with 512 workers the process finishes in only 3min12. If we could run a prover on a GPU we would then be able to have a much better throughput without requiring a too big pool.
 
-Ideally the protocol should be reasonnably efficient (ie: replicate as least as possible the aggregation), resilient to malicious actors (no one can prevent or slow down the aggregation process efficiently).
+The protocol should be reasonably efficient (ie: replicate as least as possible the aggregation), resilient to malicious actors (no one can prevent or slow down the aggregation process efficiently).
 
-Additionally this protocol have to include a reward mechanism in it in order to incentivize the worker to join the pool. This is not a trivial task because the BFT condition requires tasks to be replicated and that can create situations in which workers are actually not rewarded for their tasks.
+Additionally this protocol should include a reward mechanism in it in order to incentivize the worker to join the pool. This is not a trivial task because the BFT condition requires tasks to be replicated and that can create situations in which workers are actually not rewarded for their tasks.
 
-Several design are possible:
+### Proof of Stake aggregation
 
-* Centralized (not BFT)
-* Centralized with leader election
-* [handle](https://docs.google.com/presentation/d/1fL0mBF5At4ojW0HhbvBQ2yJHA3_q8q8kiioC6WvY9g4/edit#slide=id.p)
+One of the possible design is to use of a PoS leader election (so we can avoid sybil attack):
+
+* People can submit a proof to the pool in they provide token/eths
+* The workers can join the pool if they provide a stake
+* A leader is randomly elected in the pool at a regular rate
+* The leader dispatch the job across the pool and manage faults
+* Each worker adds an address in its aggregation proof so that he gets rewarded
+* Each worker keeps track of his previous jobs (in case of leader failure)
+* Each job produced by a worker is checked by the verifier.
+* Each pair of job assigned to the worker by the leader is checked.
+* When all the jobs are complete, the leader sends the aggregated proof to be verified on-chain.
+* If the leader does not answer after a specified timeout, the next elected one takes the leadership and each worker sends their past jobs.
+
+The leader should schedule tasks as randomly as possible in order to make it impossible for a rogue worker to get it all the time. In this case, workers and leader failure are well-handled. But we need other mechanism to ensure attack are less likely to happen.
+
+* Each exchanged message should be authenticated (eg: signed). When a fake proof is produced any member can report it and earn the faulty worker's stack.
 
 ## Prerequisite
 
