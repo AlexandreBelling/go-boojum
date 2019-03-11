@@ -9,15 +9,21 @@ A demo implementation of ZK-SNARK aggregation.
 
 ## Overview
 
-This [article](https://eprint.iacr.org/2014/595.pdf) introduced recursive snark aggregation using cycle of elliptic curve, and created the concept of PCD and it has been seen as potential solution to instantly (30ms) verify the state of the chain through a SNARK verification. This however raised the problem of data availability as it could potentially creates situations where the state becomes inaccessible. Another problem comes from the fact that a single instruction takes up to 10sec in order to be added inside the proof which makes STARKs more adapted for that.
+This [article](https://eprint.iacr.org/2014/595.pdf) introduced recursive snark aggregation using cycle of elliptic curve, and created the concept of PCD and it has been seen as potential solution to instantly (30ms) verify the state of the chain through a single SNARK verification. This however raises the problem of data availability as it can potentially create situations where the state becomes inaccessible.
 
-We propose here a circuit-agnostic solution to combine multiple ppzksnarks proofs (forged for various circuits). This is a variation of PCD comes with two circuits described in the diagram below:
+We propose here a predicate-agnostic solution to combine multiple ppzksnarks proofs (forged for various circuits). This is a variation of PCD and it comes with two circuits described in the diagram below:
 
 ![Aggregation Circuits](./docs/aggregation_circuits.png)
 
-Both circuits are in facts almost identicals, they only differs in the sense that they are not defined on the same EC. Any proof generated on one of theses can be verified recursively inside a proof on the other one. This is a necessary conditions for constructing a practical recursive SNARKs.
+Both circuits represents the following predicate: "I have a run a zk-snark verifier algorithm on 2 proofs, vk and primary inputs and their output was 1 in both". This will work for any circuits with a primary input of length 1 but this is however not a practical issue. Given a snark friendly CRH, we can always convert a multi-primary-input circuit into a single-primary-input by passing the primary inputs as auxilliary and adding the following constraint :
 
-One of the main difference with PCD is that boojum accepts a verification key as a public parameter. This is because the aggregation prover cannot make assumption on the two inputs he is going to verify. They could come from any circuits that has one single primary input (any circuit can be converted to a single input circuit using a hash instead of the actual inputs).
+    Primary = Hash(Auxilliary)
+
+This heuristic is furthermore applied to our circuits, thanks to that we enable proof for an instance of boojum circuit to be used as an input of another instance. Hence, we can recursively aggregate proof with the same two circuits.
+
+The two circuits differs in the sense that they are not defined on the same EC. Any proof generated on one of theses can be verified recursively inside a proof on the other one. This is a necessary conditions for constructing a practical recursive SNARKs. We are using the elliptic curve cycle MNT4-MNT6 described [here](https://eprint.iacr.org/2014/595.pdf).
+
+One of the main difference with PCD is that boojum accepts a verification key as a public parameter. The generator does not make assumption over the proof he is going to verify. The concern here is not about what circuit is being proved on but rather to convince the verifier run succesfully.
 
 Additionnally, PCD recursive aggregation works in a sequential way: assignments are added one after the others in the proof while we describe a protocol aggregating proofs in a hierarchical fashion.
 
@@ -59,21 +65,17 @@ Those improvement the circuit can be represented as below:
 
 ## Off-chain aggregation
 
-Each aggregation steps takes about 20sec, that means it would takes over 5.5 hours to aggregate 1024 proofs. However, the tree structure makes it easy to possible to distribute across a pool of worker.
+Each aggregation steps takes about 20sec, that means it would takes over 5.5 hours to aggregate 1024 proofs. However, the tree structure makes it possible to distribute across a pool of worker. The problem now is how to organize those workers with an aggregation protocol.
 
-The pool would load balance the process of aggregation and each worker would be rewarded for its work. For this purpose we can add an address in the verification in order to protect the worker from impersonation. Adding rewards could however also introduce the issue of byzantine behaviour : a powerfull prover would be incentivized to steal other's job. This part is still a WIP.
+Ideally the protocol should be reasonnably efficient (ie: replicate as least as possible the aggregation), resilient to malicious actors (no one can prevent or slow down the aggregation process efficiently).
 
-The aggregation protocol must also ensure that no attacker can effectively prevent nor slow down the aggregation process. The protocol [handle](https://docs.google.com/presentation/d/1fL0mBF5At4ojW0HhbvBQ2yJHA3_q8q8kiioC6WvY9g4/edit#slide=id.p) described here is currently being considered as the aggregation protocol. It is tolerant to byzantine failures and scales wells with large networks.
+Additionally this protocol have to include a reward mechanism in it in order to incentivize the worker to join the pool. This is not a trivial task because the BFT condition requires tasks to be replicated and that can create situations in which workers are actually not rewarded for their tasks.
 
-## [WIP] Adapted design using Handel
+Several design are possible:
 
-The aggregation mechanism as it is described above is not directly compatible with Handel. Three issues that have to be addressed in order to make the mechanism compatible with Handel.
-
-* On handel each node manage a unique private key in order to sign an aggregate. Therefore, before the aggregation the signer already knows what job he is going to perform. On the other side, with boojum each worker can possibly have several jobs and the pool needs a consensus on who is going to aggregate which proofs. A mechanism to decentralize this should be carefully designed.
-
-* On handel, when a worker is waiting a proof from a faulty worker (timeout or bad proof), it has the possibility to send its job to the next level and that helps guaranteeing the BFTolerance of the protocol. It is not possible to do it with the current design because we are alternating with differents EC.
-
-* Handel needs an aggregation function that is commutative and associative. Boojum's current design uses a "kind of Merkle Tree" based on snark friendly hash functions and it is neither commutative nor associative. A few adaptations should be made in boojum in order to work. Following a discussion with N. Liochon and O. Begassat It might not be an imperative as long as anyone can know "in which order" the tree was built so it can be properly verified in the end.
+* Centralized (not BFT)
+* Centralized with leader election
+* [handle](https://docs.google.com/presentation/d/1fL0mBF5At4ojW0HhbvBQ2yJHA3_q8q8kiioC6WvY9g4/edit#slide=id.p)
 
 ## Prerequisite
 
