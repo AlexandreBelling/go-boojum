@@ -76,7 +76,7 @@ The protocol should be reasonably efficient (ie: replicate as least as possible 
 
 Additionally this protocol should include a reward mechanism in it in order to incentivize the worker to join the pool. This is not a trivial task because the BFT condition requires tasks to be replicated and that can create situations in which workers are actually not rewarded for their tasks.
 
-### Proof of Stake aggregation
+### Proof of Stake based aggregation protocol
 
 One of the possible design is to use of a PoS leader election (so we can avoid sybil attack):
 
