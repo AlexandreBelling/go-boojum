@@ -15,12 +15,13 @@ RUN add-apt-repository ppa:longsleep/golang-backports
 RUN apt-get update
 RUN apt-get install -y golang-1.11
 
-RUN mkdir -p /usr/src/go/src/github.com/AlexandreBelling/go-boojum
-COPY . /usr/src/go/src/github.com/AlexandreBelling/go-boojum
+RUN mkdir -p /usr/src/go/src/github.com/AlexandreBelling/go-boojum/aggregator
+COPY ./aggregator /usr/src/go/src/github.com/AlexandreBelling/go-boojum/aggregator
 WORKDIR /usr/src/go/src/github.com/AlexandreBelling/go-boojum
 
 RUN cd aggregator && make build-all
-RUN ls
+
+COPY . /usr/src/go/src/github.com/AlexandreBelling/go-boojum
 
 ENV GOPATH /usr/src/go
 ENV GOROOT /usr/lib/go-1.11
