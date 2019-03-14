@@ -30,14 +30,14 @@ func (boo *Boojum) RunGenerators() *Boojum {
 
 // MakeExample returns an example proof
 func (boo *Boojum) MakeExample() *Tree {
-	tree := newTree()
+	tree := newTree(boo)
 	makeExampleProof(&tree.data)
 	return tree
 }
 
 // AggregateTrees returns the aggregated tree
 func (boo *Boojum) AggregateTrees(left, right Tree) (output *Tree) {
-	output = newTree()
+	output = newTree(boo)
 	proveAggregation(
 		left.data,
 		right.data,
