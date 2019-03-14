@@ -24,7 +24,6 @@ func runGenerators(dir string) {
 // Assign an example_tree to
 func makeExampleProof(treeBuffer **byte) {
 
-	
 	freeMeAfter := unsafe.Pointer(*treeBuffer)
 	defer C.free(freeMeAfter)
 
@@ -66,4 +65,9 @@ func verify(treeBuffer *byte) (bool) {
 		unsafe.Pointer(&(*treeBuffer)),
 	)
 	return bool(valid)
+}
+
+func memFree(treeBuffer *byte) {
+	C.memfree(unsafe.Pointer(treeBuffer))
+	C.free(unsafe.Pointer(treeBuffer))
 }
