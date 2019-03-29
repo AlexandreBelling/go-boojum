@@ -1,5 +1,5 @@
+package monolithic
 // Round keep tracks of aggregation rounds
-package protocol
 
 type Round struct{
 	BackLog []Tree

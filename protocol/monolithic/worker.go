@@ -1,4 +1,4 @@
-package protocol
+package monolithic
 
 // Worker is responsible to perform aggregation
 type Worker struct {

@@ -1,4 +1,4 @@
-package scheduler
+package monolithic
 
 import (
 	"math"
@@ -107,7 +107,6 @@ func NewRound(payloads []aggregator.Tree) (rou *Round) {
 // Launch the scheduler must 
 // be run as a go routine or it will deadlock
 func (rou *Round) Launch() {
-
 	rou.Root.Schedule(rou.pendings)
 }
 
@@ -139,6 +138,9 @@ func (w *Worker) StartConsuming(pendings chan Tree, done chan bool) {
 				*job.right.payload,
 			)
 
+			job.left.payload.memFree()
+			job.right.payload.memFree()
+			
 		}
 	}
 }
