@@ -12,7 +12,7 @@ func TestBoojum(t *testing.T) {
 	right := boo.MakeExample()
 	
 	boo.RunGenerators()
-	output := boo.AggregateTrees(*left, *right)
+	output := boo.AggregateTrees(left, right)
 
 	valid := boo.Verify(output)
 	if !valid {
