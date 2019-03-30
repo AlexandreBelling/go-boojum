@@ -8,11 +8,11 @@ import (
 func TestProtocol(t *testing.T) {
 
 	boo := aggregator.New().Initialize().WithDir("./../aggregator/setup").RunGenerators()
-	batch := make([]aggregator.Tree, 8)
+	batch := make([][]byte, 8)
 
 	// Initialize the backlog
 	for i:=0; i<8; i++ {
-		batch[i] = *boo.MakeExample()
+		batch[i] = boo.MakeExample()
 	}
 	
 	worker := &Worker{boo: boo}
