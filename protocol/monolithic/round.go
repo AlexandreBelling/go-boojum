@@ -1,6 +1,11 @@
 package monolithic
 // Round keep tracks of aggregation rounds
 
+import(
+	"math"
+	"github.com/AlexandreBelling/go-boojum/aggregator"
+)
+
 type Round struct{
 	BackLog []Tree
 	Root *Tree

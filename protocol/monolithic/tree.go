@@ -1,7 +1,6 @@
 package monolithic
 
 import (
-	"math"
 	"github.com/AlexandreBelling/go-boojum/aggregator"
 )
 
@@ -54,7 +53,7 @@ func (t *Tree) getLeavesRecursive(leaves *[]Tree) {
 	println(t.right)
 }
 
-//Schedule waits for operands to be aggregated then add to scheduler
+// Schedule waits for operands to be aggregated then add to scheduler
 func (t *Tree) Schedule(pendings chan Tree) {
 
 	if t.left != nil && t.right != nil {
@@ -71,77 +70,3 @@ func (t *Tree) Schedule(pendings chan Tree) {
 		pendings <- *t
 	}
 }
-
-// Round keep tracks of aggregation rounds
-type Round struct{
-	BackLog []Tree
-	Root *Tree
-	pendings chan Tree
-}
-
-// NewRound construct a new round from payload
-func NewRound(payloads []aggregator.Tree) (rou *Round) {
-
-	height := int(
-		math.Log2(
-			float64(
-				len(payloads),		
-	))) + 1
-
-	root := NewTree(height)
-	backlog := root.GetLeaves()
-
-	rou = &Round{
-		BackLog: backlog,
-		Root: root,
-		pendings: make(chan Tree, len(payloads)),
-	}
-
-	for i := 0; i < len(payloads); i++ {
-		rou.BackLog[i].payloadChan <- payloads[i] 
-	}
-
-	return rou
-}
-
-// Launch the scheduler must 
-// be run as a go routine or it will deadlock
-func (rou *Round) Launch() {
-	rou.Root.Schedule(rou.pendings)
-}
-
-// Verify the round has been correctly executed
-func (rou *Round) Verify(boo *aggregator.Boojum) (bool) {
-
-	rootPayload := <- rou.Root.payloadChan
-	rou.Root.payload = &rootPayload
-	return boo.Verify(rou.Root.payload)
-}
-
-// Worker is responsible to perform aggregation
-type Worker struct {
-	boo *aggregator.Boojum
-}
-
-// StartConsuming in the pendings queue until it receives done
-func (w *Worker) StartConsuming(pendings chan Tree, done chan bool) {
-	for {
-		select {
-		case <- done:
-			return
-		case job := <- pendings:
-
-			// Scheduler ensures that whenever job is received
-			// left and right are already assigned
-			job.payloadChan <- *w.boo.AggregateTrees(
-				*job.left.payload,
-				*job.right.payload,
-			)
-
-			job.left.payload.memFree()
-			job.right.payload.memFree()
-			
-		}
-	}
-}
-

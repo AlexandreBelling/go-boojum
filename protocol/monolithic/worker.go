@@ -1,5 +1,9 @@
 package monolithic
 
+import(
+	"github.com/AlexandreBelling/go-boojum/aggregator"
+)
+
 // Worker is responsible to perform aggregation
 type Worker struct {
 	boo *aggregator.Boojum
@@ -20,8 +24,9 @@ func (w *Worker) StartConsuming(pendings chan Tree, done chan bool) {
 				*job.right.payload,
 			)
 
-			job.left.payload.memFree()
-			job.right.payload.memFree()
+			// Unallocate the aggregated payloads
+			job.left.payload.Rm()
+			job.right.payload.Rm()
 			
 		}
 	}

@@ -17,10 +17,12 @@ func newTree(boo *Boojum) (*Tree) {
 	}
 }
 
+// Rm unallocate the memory associated with the Tree object
 func (tree *Tree) Rm() {
 	memFree(tree.data)
 }
 
+// Verify returns true if the tree is valid
 func (tree *Tree) Verify() (bool) {
 	return verify(tree.data)
 }
