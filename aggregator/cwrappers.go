@@ -24,6 +24,7 @@ func runGenerators(dir string) {
 // Assign an example_tree to
 func makeExampleProof(treeBuffer **byte) {
 
+	// Free me after that the *byte referenced by the output is freed
 	freeMeAfter := unsafe.Pointer(*treeBuffer)
 	defer C.free(freeMeAfter)
 
@@ -43,7 +44,7 @@ func proveAggregation(
 	rightBuffer *byte,
 	outputBuffer **byte,
 ) {
-
+	// Free me after that the *byte referenced by the output is freed
 	freeMeAfter := unsafe.Pointer(*outputBuffer)
 	defer C.free(freeMeAfter)
 

@@ -44,25 +44,28 @@ func (boo *Boojum) AggregateTrees(left, right []byte) ([]byte) {
 	rightTree := newTree(boo).SetDataFromBytes(right)
 	outputTree := newTree(boo)
 
-	// Defer the memory unallocation
-	defer leftTree.Rm()
-	defer rightTree.Rm()
-	defer outputTree.Rm()
-
 	proveAggregation(
 		leftTree.data,
 		rightTree.data,
 		&outputTree.data,
 	)
 
-	return outputTree.ToByte()
+	res := outputTree.ToByte()
+
+	// Unallocate the memory
+	//leftTree.Rm()
+	//rightTree.Rm()
+	//outputTree.Rm()
+
+	return res
 } 
 
 // Verify returns a boolean indicating that a tree is valid
 func (boo *Boojum) Verify(buff []byte) bool {
 	tree := newTree(boo).SetDataFromBytes(buff)
-	defer tree.Rm()
-	return verify(
+	res := verify(
 		tree.data,
 	)
+	//tree.Rm()
+	return res
 }
