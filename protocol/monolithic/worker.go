@@ -24,7 +24,7 @@ func (w *Worker) StartConsuming(pendings chan Tree, done chan bool) {
 				*job.right.payload,
 			)
 
-			// Unallocate the aggregated payloads
+			// Unallocate the aggregated payloads. ATM the method is broken
 			job.left.payload.Rm()
 			job.right.payload.Rm()
 			

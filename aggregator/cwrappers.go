@@ -68,6 +68,6 @@ func verify(treeBuffer *byte) (bool) {
 }
 
 func memFree(treeBuffer *byte) {
-	C.memfree(unsafe.Pointer(treeBuffer))
+	// No need to call the internal memfree function for that
 	C.free(unsafe.Pointer(treeBuffer))
 }
