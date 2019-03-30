@@ -71,3 +71,9 @@ func memFree(treeBuffer *byte) {
 	// No need to call the internal memfree function for that
 	C.free(unsafe.Pointer(treeBuffer))
 }
+
+func toByte(treeBuffer *byte) ([]byte) {
+	treeBufferPtr := unsafe.Pointer(treeBuffer)
+	resCInt := C.buff_len(treeBufferPtr)
+	return C.GoBytes(treeBufferPtr,resCInt)
+}
