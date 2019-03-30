@@ -10,9 +10,9 @@ clear-compiled:
 	rm -rf ./compiled/*
 
 fetch-compiled:
-	find . -name \*.a -exec cp {} ./compiled \;
-	find . -name \*.o -exec cp {} ./compiled \;
-	find . -name \*.so -exec cp {} ./compiled \;
+	find . -name libboojum.a -exec cp {} ./compiled \;
+	find . -name libff.a -exec cp {} ./compiled \;
+	find . -name libsnark.a -exec cp {} ./compiled \;
 
 clear-setup:
 	mkdir -p setup

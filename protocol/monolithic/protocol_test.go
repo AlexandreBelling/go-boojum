@@ -1,4 +1,4 @@
-package scheduler
+package monolithic
 
 import (
 	"testing"
@@ -7,7 +7,6 @@ import (
 
 func TestProtocol(t *testing.T) {
 
-	
 	boo := aggregator.New().Initialize().WithDir("./../aggregator/setup").RunGenerators()
 	batch := make([]aggregator.Tree, 8)
 
