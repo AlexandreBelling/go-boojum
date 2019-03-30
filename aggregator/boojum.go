@@ -29,25 +29,39 @@ func (boo *Boojum) RunGenerators() *Boojum {
 }
 
 // MakeExample returns an example proof
-func (boo *Boojum) MakeExample() *Tree {
+func (boo *Boojum) MakeExample() []byte {
 	tree := newTree(boo)
+	defer tree.Rm()
 	makeExampleProof(&tree.data)
-	return tree
+	return tree.ToByte()
 }
 
 // AggregateTrees returns the aggregated tree
-func (boo *Boojum) AggregateTrees(left, right Tree) (output *Tree) {
-	output = newTree(boo)
+func (boo *Boojum) AggregateTrees(left, right []byte) ([]byte) {
+	
+	// Initialize Tree object
+	leftTree := newTree(boo).SetDataFromBytes(left)
+	rightTree := newTree(boo).SetDataFromBytes(right)
+	outputTree := newTree(boo)
+
+	// Defer the memory unallocation
+	defer leftTree.Rm()
+	defer rightTree.Rm()
+	defer outputTree.Rm()
+
 	proveAggregation(
-		left.data,
-		right.data,
-		&output.data,
+		leftTree.data,
+		rightTree.data,
+		&outputTree.data,
 	)
-	return output
+
+	return outputTree.ToByte()
 } 
 
 // Verify returns a boolean indicating that a tree is valid
-func (boo *Boojum) Verify(tree *Tree) bool {
+func (boo *Boojum) Verify(buff []byte) bool {
+	tree := newTree(boo).SetDataFromBytes(buff)
+	defer tree.Rm()
 	return verify(
 		tree.data,
 	)

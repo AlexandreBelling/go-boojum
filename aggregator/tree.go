@@ -31,3 +31,9 @@ func (tree *Tree) Verify() (bool) {
 func (tree *Tree) ToByte() ([]byte) {
 	return toByte(tree.data)
 }
+
+// SetDataFromBytes sets the data from a slice
+func (tree *Tree) SetDataFromBytes(data []byte) (*Tree) {
+	tree.data = &data[0]
+	return tree
+}

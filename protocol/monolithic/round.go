@@ -6,6 +6,7 @@ import(
 	"github.com/AlexandreBelling/go-boojum/aggregator"
 )
 
+// Round is a container for
 type Round struct{
 	BackLog []Tree
 	Root *Tree
@@ -13,7 +14,7 @@ type Round struct{
 }
 
 // NewRound construct a new round from payload
-func NewRound(payloads []aggregator.Tree) (rou *Round) {
+func NewRound(payloads [][]byte) (rou *Round) {
 
 	height := int(
 		math.Log2(
@@ -48,7 +49,7 @@ func (rou *Round) Launch() {
 func (rou *Round) Verify(boo *aggregator.Boojum) (bool) {
 
 	rootPayload := <- rou.Root.payloadChan
-	rou.Root.payload = &rootPayload
+	rou.Root.payload = rootPayload
 	return boo.Verify(rou.Root.payload)
 }
 

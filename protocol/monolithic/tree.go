@@ -1,14 +1,10 @@
 package monolithic
 
-import (
-	"github.com/AlexandreBelling/go-boojum/aggregator"
-)
-
 // Tree is a recursive helper that helps scheduling the aggregation
 type Tree struct{
 	left, right *Tree
-	payloadChan chan aggregator.Tree
-	payload *aggregator.Tree
+	payloadChan chan []byte
+	payload []byte
 	height int
 }
 
@@ -19,7 +15,7 @@ func NewTree(height int) (t* Tree) {
 		t = &Tree{
 			left: NewTree(height - 1),
 			right: NewTree(height - 1),
-			payloadChan: make(chan aggregator.Tree, 1),
+			payloadChan: make(chan []byte, 1),
 			height: height,
 		}
 
@@ -64,8 +60,8 @@ func (t *Tree) Schedule(pendings chan Tree) {
 		leftPayload := <- t.left.payloadChan
 		rightPayload := <- t.right.payloadChan
 
-		t.left.payload = &leftPayload
-		t.right.payload = &rightPayload 
+		t.left.payload = leftPayload
+		t.right.payload = rightPayload 
 
 		pendings <- *t
 	}

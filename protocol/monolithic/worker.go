@@ -19,15 +19,10 @@ func (w *Worker) StartConsuming(pendings chan Tree, done chan bool) {
 
 			// Scheduler ensures that whenever job is received
 			// left and right are already assigned
-			job.payloadChan <- *w.boo.AggregateTrees(
-				*job.left.payload,
-				*job.right.payload,
-			)
-
-			// Unallocate the aggregated payloads. ATM the method is broken
-			job.left.payload.Rm()
-			job.right.payload.Rm()
-			
+			job.payloadChan <- w.boo.AggregateTrees(
+				job.left.payload,
+				job.right.payload,
+			)	
 		}
 	}
 }
