@@ -1,0 +1,17 @@
+syntax = "proto3";
+package boojum.protocol.leader_election;
+
+message AggregationProposal {
+    string address = 1;
+    bytes signature = 2;
+}
+
+message AggregationRequest {
+    repeated bytes subTrees = 1;
+    int64 token = 2;
+}
+
+message AggregationResult {
+    bytes result = 1;
+    int64 token = 2;
+}

@@ -1,11 +1,16 @@
 package monolithic
 
+import (
+	"sync"
+)
+
 // Tree is a recursive helper that helps scheduling the aggregation
 type Tree struct{
 	left, right *Tree
 	payloadChan chan []byte
 	payload []byte
 	height int
+	mut sync.Mutex
 }
 
 // NewTree assigns a tree with depth 
