@@ -2,7 +2,6 @@ package election
 
 import (
 	"github.com/golang/protobuf/proto"
-	"github.com/AlexandreBelling/go-boojum/aggregator"
 	msg "github.com/AlexandreBelling/go-boojum/protocol/election/messages"
 )
 
@@ -11,7 +10,6 @@ type Worker struct {
 	Participant 		*Participant
 	Tasks				[][]byte
 	JobsIn				chan msg.AggregationRequest
-	aggregator			aggregator.Aggregator
 	LeaderAddress		string
 }
 
@@ -22,7 +20,6 @@ func (w *Worker) Run() {
 	w.IdentifyLeader(newBatch)
 
 	for {
-
 		select {
 
 		case job := <- w.JobsIn:
@@ -32,6 +29,18 @@ func (w *Worker) Run() {
 		case <- w.Participant.Blockchain.BatchDone:
 			return
 		}
+	}
+}
+
+// NewWorker construct a new worker object
+func NewWorker(participant *Participant, tasks [][]byte) *Worker {
+	
+	return &Worker{
+		Participant:	participant,
+		Tasks:			tasks,
+		LeaderAddress:	participant.Blockchain.GetLeaderAddress(tasks),
+
+		JobsIn:			make(chan msg.AggregationRequest),
 	}
 }
 
@@ -59,7 +68,7 @@ func (w *Worker) IdentifyLeader(newBatch [][]byte) {
 
 // DoJob ..
 func (w *Worker) DoJob(job [][]byte) []byte {
-	return w.aggregator.AggregateTrees(job[0], job[1])
+	return w.Participant.Aggregator.AggregateTrees(job[0], job[1])
 }
 
 // SendResult ..

@@ -31,9 +31,16 @@ func (mock *BlockchainClientProtocolMock) Connect(blockchainInterface *Participa
 
 // SendTransactionRetry will ensure the transaction passes. It is a Mock
 // tx argument is never read and is supposed to be sent to nil
-func (mock *BlockchainClientProtocolMock) SendTransactionRetry(tx *ethtypes.Transaction) {
+func (mock BlockchainClientProtocolMock) SendTransactionRetry(tx *ethtypes.Transaction) {
 	for _, participant := range mock.Participants {
 		participant.BatchDone 	<- true
+		participant.NewBatch 	<- mock.Batch 
+	}
+}
+
+// NewBatch initiate the test
+func (mock *BlockchainClientProtocolMock) NewBatch() {
+	for _, participant := range mock.Participants {
 		participant.NewBatch 	<- mock.Batch 
 	}
 }

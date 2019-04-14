@@ -1,13 +1,14 @@
 package election
 
 import (
+	log "github.com/sirupsen/logrus"
+	"github.com/golang/protobuf/proto"
 	"github.com/AlexandreBelling/go-boojum/aggregator"
+	"github.com/AlexandreBelling/go-boojum/blockchain"
 	net "github.com/AlexandreBelling/go-boojum/network"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/AlexandreBelling/go-boojum/blockchain"
 	msg "github.com/AlexandreBelling/go-boojum/protocol/election/messages"
-	"github.com/golang/protobuf/proto"
 )
 
 // Participant ..
@@ -36,8 +37,16 @@ func (par *Participant) WithNetwork(network net.Network) *Participant {
 }
 
 // WithBCInterface ..
-func (par *Participant) WithBCInterface(blockchain *ParticipantBlockchainInterface) (*Participant) {
-	par.Blockchain = blockchain
+func (par *Participant) WithBCInterface(blockchain blockchain.Client) (*Participant) {
+
+	par.Blockchain = &ParticipantBlockchainInterface{
+		Backend: 		blockchain,
+
+		BlockStream: 	make(chan ethtypes.Block),
+		NewBatch: 		make(chan [][]byte),
+		BatchDone: 		make(chan bool),
+	}
+
 	return par
 }
 
@@ -64,12 +73,16 @@ func (par *Participant) Run() {
 	go func() {
 		for {
 			batch := <- par.Blockchain.NewBatch
+			println("New batch")
 			switch par.GetRank(batch) {
 			default:
-				// Do workers stuff
-				// Blocking call
+				log.Infof("Boojum | Participant: %v | Started worker", par.Address)
+				w := NewWorker(par, batch)
+				w.Run()
 			case 0:
-				// Do leader stuff
+				log.Infof("Boojum | Participant: %v | Started leader", par.Address)
+				l := NewLeader(batch, 2, 10, par)
+				l.Run()
 			}
 		}
 	}()
@@ -89,18 +102,18 @@ func (par *Participant) ForwardNetworkToWorker(worker *Worker, quit <-chan bool)
 
 		case marshalled := <-par.NetworkIn:	
 			request := &msg.AggregationRequest{}
-			err := proto.Unmarshall(marshalled, request)
+			err := proto.Unmarshal(marshalled, request)
 			if err == nil {
-				worker.JobsIn <- request
+				worker.JobsIn <- *request
 			}
-
 		}
 
 	}
 }
 
-// ForwardNetworkToWorker ..
+// ForwardNetworkToLeader ..
 func (par *Participant) ForwardNetworkToLeader(leader *Leader, quit <-chan bool) {
+	
 	for {
 		select{
 
@@ -110,16 +123,16 @@ func (par *Participant) ForwardNetworkToLeader(leader *Leader, quit <-chan bool)
 		case marshalled := <-par.NetworkIn:
 
 			proposal := &msg.AggregationProposal{}
-			err := proto.Unmarshall(marshalled, request)
+			err := proto.Unmarshal(marshalled, proposal)
 			if err == nil {
-				leader.ProposalsChan <- request
+				leader.ProposalsChan <- *proposal
 				continue
 			}
 
 			result := &msg.AggregationResult{}
-			err = proto.Unmarshall(marshalled, request)
+			err = proto.Unmarshal(marshalled, result)
 			if err == nil {
-				leader.ResultsChan <- result
+				leader.ResultsChan <- *result
 				continue
 			}
 		}
@@ -131,6 +144,7 @@ func (par *Participant) ForwardNetworkToLeader(leader *Leader, quit <-chan bool)
 // It manages its communications with the blockchain.
 type ParticipantBlockchainInterface struct {
 
+	// Todo pass transactions instead of entires blocks
 	BlockStream			chan ethtypes.Block
 	NewBatch 			chan [][]byte
 	BatchDone 			chan bool
