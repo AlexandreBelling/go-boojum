@@ -16,9 +16,9 @@ type BlockchainClientProtocolMock struct {
 // They are all identicals, this is a batch of 32 proofs
 func (mock *BlockchainClientProtocolMock) GenerateBatch(boojum aggregator.Aggregator) {
 	leaf := boojum.MakeExample()
-	mock.Batch = make([][]byte, 32)
+	mock.Batch = make([][]byte, 8)
 	
-	for i:=0; i<32; i++ {
+	for i:=0; i<2; i++ {
 		mock.Batch[i] = leaf
 	}
 }

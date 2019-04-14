@@ -2,6 +2,7 @@ package election
 
 import (
 	"github.com/golang/protobuf/proto"
+	log "github.com/sirupsen/logrus"
 	msg "github.com/AlexandreBelling/go-boojum/protocol/election/messages"
 )
 
@@ -16,17 +17,20 @@ type Worker struct {
 // Run is the main routine of the worker
 func (w *Worker) Run() {
 
-	newBatch := <- w.Participant.Blockchain.NewBatch
-	w.IdentifyLeader(newBatch)
+	w.IdentifyLeader(w.Tasks)
+	w.SendProposal()
 
 	for {
 		select {
 
 		case job := <- w.JobsIn:
+			log.Infof("Boojum | Worker %v | Acknowledging %v", w.Participant.Address, job.Token)
 			result := w.DoJob(job.GetSubTrees())
 			w.SendResult(result, job.GetToken())
+			w.SendProposal()
 
 		case <- w.Participant.Blockchain.BatchDone:
+			log.Infof("Boojum | Worker %v | Batch done", w.Participant.Address)
 			return
 		}
 	}
@@ -34,7 +38,7 @@ func (w *Worker) Run() {
 
 // NewWorker construct a new worker object
 func NewWorker(participant *Participant, tasks [][]byte) *Worker {
-	
+
 	return &Worker{
 		Participant:	participant,
 		Tasks:			tasks,
@@ -47,7 +51,10 @@ func NewWorker(participant *Participant, tasks [][]byte) *Worker {
 // SendProposal ..
 func (w *Worker) SendProposal() error {
 
+	log.Infof("Boojum | Worker: %v | Sending proposal", w.Participant.Address)
+
 	msg := &msg.AggregationProposal{
+			Type: "Proposal",
 			Address: w.Participant.Address,
 			Signature: []byte{},
 		}
@@ -75,6 +82,7 @@ func (w *Worker) DoJob(job [][]byte) []byte {
 func (w* Worker) SendResult(result []byte, token int64) error {
 
 	msg := &msg.AggregationResult{
+		Type: "Result",
 		Result: result,
 		Token: token,
 	}
@@ -85,5 +93,6 @@ func (w* Worker) SendResult(result []byte, token int64) error {
 	}
 
 	w.Participant.Network.Send(marshalled, w.LeaderAddress)
+	log.Infof("Boojum | Worker : %v | Sending result for %v", w.Participant.Address, msg.Token)
 	return nil
 }

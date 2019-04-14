@@ -6,6 +6,7 @@ type Tree struct{
 	payloadChan chan []byte
 	payload []byte
 	height int
+	label int
 }
 
 // NewTree assigns a tree with depth 

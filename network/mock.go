@@ -17,6 +17,6 @@ func (net *MockNetwork) GetConnexion(address string) chan []byte {
 		return con
 	}
 
-	net.Connexions[address] = make(chan []byte)
+	net.Connexions[address] = make(chan []byte, 100)
 	return net.Connexions[address]
 }

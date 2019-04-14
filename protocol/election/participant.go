@@ -73,16 +73,22 @@ func (par *Participant) Run() {
 	go func() {
 		for {
 			batch := <- par.Blockchain.NewBatch
-			println("New batch")
+			quit := make(chan bool)
 			switch par.GetRank(batch) {
+
 			default:
 				log.Infof("Boojum | Participant: %v | Started worker", par.Address)
 				w := NewWorker(par, batch)
+				go par.ForwardNetworkToWorker(w, quit) // To Do: Move it as an auxillirary routine of Worker
 				w.Run()
+				quit <- true
+
 			case 0:
 				log.Infof("Boojum | Participant: %v | Started leader", par.Address)
 				l := NewLeader(batch, 2, 10, par)
+				go par.ForwardNetworkToLeader(l, quit) // To Do: Move it as an auxillirary routine of Leader
 				l.Run()
+				quit <- true
 			}
 		}
 	}()
@@ -100,10 +106,11 @@ func (par *Participant) ForwardNetworkToWorker(worker *Worker, quit <-chan bool)
 		case <-quit:
 			return
 
-		case marshalled := <-par.NetworkIn:	
+		case marshalled := <-par.NetworkIn:
 			request := &msg.AggregationRequest{}
 			err := proto.Unmarshal(marshalled, request)
-			if err == nil {
+			if err == nil && request.Type == "Request" {
+				log.Infof("Boojum | Participant: %v | Got request for %v", par.Address , request.GetToken())
 				worker.JobsIn <- *request
 			}
 		}
@@ -124,14 +131,16 @@ func (par *Participant) ForwardNetworkToLeader(leader *Leader, quit <-chan bool)
 
 			proposal := &msg.AggregationProposal{}
 			err := proto.Unmarshal(marshalled, proposal)
-			if err == nil {
+			if err == nil && proposal.Type == "Proposal" {
+				log.Infof("Boojum | Participant: %v | Got proposal from %v", par.Address ,proposal.Address)
 				leader.ProposalsChan <- *proposal
 				continue
 			}
 
 			result := &msg.AggregationResult{}
 			err = proto.Unmarshal(marshalled, result)
-			if err == nil {
+			if err == nil && result.Type == "Result" {
+				log.Infof("Boojum | Participant: %v | Got result for %v", par.Address ,result.Token)
 				leader.ResultsChan <- *result
 				continue
 			}
@@ -156,6 +165,7 @@ type ParticipantBlockchainInterface struct {
 // PublishAggregated ..
 func (bci *ParticipantBlockchainInterface) PublishAggregated(aggregated []byte) {
 	// Do stuffs with to make sure the transaction is eventually mined
+	log.Infof("Boojum | Worker | Publish on-chain")
 	bci.Backend.SendTransactionRetry(&ethtypes.Transaction{})
 	return
 }
