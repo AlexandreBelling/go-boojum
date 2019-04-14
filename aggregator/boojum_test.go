@@ -6,7 +6,7 @@ import (
 
 func TestBoojum(t *testing.T) {
 
-	boo := New().Initialize().WithDir("./setup")
+	boo := NewBoojum().WithDir("./setup")
 
 	left := boo.MakeExample()
 	right := boo.MakeExample()

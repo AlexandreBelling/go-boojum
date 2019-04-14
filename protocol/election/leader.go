@@ -1,7 +1,7 @@
-package layered
+package election
 
 import (
-	msg "github.com/AlexandreBelling/go-boojum/protocol/layered/messages"
+	msg "github.com/AlexandreBelling/go-boojum/protocol/election/messages"
 	"github.com/golang/protobuf/proto"
 	"math"
 	"math/big"
@@ -10,57 +10,24 @@ import (
 	"time"
 )
 
-
-// Round ..
-type Round struct {}
-
-// Role ..
-type Role interface {}
-
-// ResultDemuxer maps token with the right result channel
-type ResultDemuxer struct {
-	ResultsPerID 	map[int64]chan []byte
-}
-
-// NewResultDemuxer is a constructor for ResultDemuxer
-func NewResultDemuxer() (*ResultDemuxer) {
-	return &ResultDemuxer{
-		ResultsPerID: make(map[int64]chan []byte),
-	}
-}
-
-// AddConsumer adds a channel in the demultiplexer map
-func (demux *ResultDemuxer) AddConsumer(token int64, consumingChannel chan []byte) {
-	demux.ResultsPerID[token] = consumingChannel
-	return
-}
-
-// FanOut receive a message and pass it to the right channel
-func (demux *ResultDemuxer) FanOut(token int64, data []byte) error {
-
-	if demux.ResultsPerID[token] == nil {
-		return fmt.Errorf("Channel for token %v does not exists", token)
-	}
-
-	demux.ResultsPerID[token] <- data
-	return nil
-}
-
 // Leader ..
 type Leader struct {
 
-	Timeout int
-	Arity int
+	Participant 	*Participant
+	Tasks			[][]byte
+	Timeout 		int
+	Arity 			int
 
-	ProposalsChan 		chan msg.AggregationProposal
-	ResultsChan			chan msg.AggregationResult
+	ProposalsChan 	chan msg.AggregationProposal
+	ResultsChan		chan msg.AggregationResult
 	
-	ResultMux  			*ResultDemuxer
-	Root				*Tree
-	Participant 		*Participant
+	ResultMux  		*ResultDemuxer
+	Root			*Tree
+
+	Stop			chan bool
 }
 
-// NewLeader ..
+// NewLeader construct a new leader instance
 func NewLeader(tasks [][]byte, arity int, nWorkers int, participant *Participant) (l *Leader) {
 
 	height := int(
@@ -69,25 +36,42 @@ func NewLeader(tasks [][]byte, arity int, nWorkers int, participant *Participant
 				len(tasks),		
 	))) + 1
 
-	root := NewTree(height, arity)
-	leaves := root.GetLeaves()
-	for index := range leaves {
-		leaves[index].payloadChan <- tasks[index]
-	}
-
 	l = &Leader{
-		Timeout: 10,
-		Arity: 2,
+
+		Participant:	participant,
+		Tasks:			tasks,
+		Timeout: 		10,
+		Arity: 			2,
 
 		ProposalsChan: 	make(chan msg.AggregationProposal, 	nWorkers),
 		ResultsChan:	make(chan msg.AggregationResult, 	height),
 
 		ResultMux: 		NewResultDemuxer(),
 		Root:			NewTree(height, arity),
-		Participant:	participant,		
+		
+		Stop: 			make(chan bool),
 	}
 	
 	return l
+}
+
+// Run contains the main routine of a Leader instance
+func (l *Leader) Run() {
+	l.Schedule(l.Root) // This starts the
+	l.Start()
+	aggregated := <- l.Root.payloadChan
+	// Block until the transaction is mined
+	l.Participant.Blockchain.PublishAggregated(aggregated)
+	<- l.Participant.Blockchain.BatchDone
+}
+
+// Start dispatching jobs to the workers
+func (l *Leader) Start() {
+	// Starts
+	leaves := l.Root.GetLeaves()
+	for index := range leaves {
+		leaves[index].payloadChan <- l.Tasks[index]
+	}
 }
 
 // Schedule waits for operands to be aggregated then add to scheduler
@@ -126,7 +110,6 @@ func (l *Leader) DispatchRetry(t *Tree, payloads [][]byte) {
 
 	token := RandomToken()
 	doneChan := make(chan []byte)
-
 	l.ResultMux.AddConsumer(token, doneChan)
 
 	taskLoop:
@@ -148,8 +131,9 @@ func (l *Leader) DispatchRetry(t *Tree, payloads [][]byte) {
 		for {
 			select {
 			case result:= <- doneChan:
+				l.Participant.Aggregator.Verify(result)
+				// TODO: Add a way to test wether the proof is the right proofà
 				t.payloadChan <- result
-				// TODO: If verification is light enough to be heavily multithreaded, add it here
 				return
 			case <- timeoutChan:
 				continue taskLoop
@@ -166,10 +150,12 @@ func (l *Leader) Dispatch(token int64, payloads [][]byte, address string) error 
 		SubTrees: payloads,
 		Token: token,
 	}
+
 	marshalled, err := proto.Marshal(&request)
 	if err != nil {
 		return err
 	}
+
 	return l.Participant.Network.Send(marshalled, address)
 }
 
@@ -177,7 +163,6 @@ func (l *Leader) Dispatch(token int64, payloads [][]byte, address string) error 
 func (l *Leader) DistributeResults() {
 	for {
 		result := <- l.ResultsChan
-		// TODO: If verification so heavy, that it needs its own thread policy add it here
 		l.ResultMux.FanOut(result.GetToken(), result.GetResult())
 	}
 }
@@ -190,4 +175,33 @@ func RandomToken() int64 {
 		panic(err)
 	}
 	return nBig.Int64()
+}
+
+// ResultDemuxer maps token with the right result channel
+type ResultDemuxer struct {
+	ResultsPerID 	map[int64]chan []byte
+}
+
+// NewResultDemuxer is a constructor for ResultDemuxer
+func NewResultDemuxer() (*ResultDemuxer) {
+	return &ResultDemuxer{
+		ResultsPerID: make(map[int64]chan []byte),
+	}
+}
+
+// AddConsumer adds a channel in the demultiplexer map
+func (demux *ResultDemuxer) AddConsumer(token int64, consumingChannel chan []byte) {
+	demux.ResultsPerID[token] = consumingChannel
+	return
+}
+
+// FanOut receive a message and pass it to the right channel
+func (demux *ResultDemuxer) FanOut(token int64, data []byte) error {
+
+	if demux.ResultsPerID[token] == nil {
+		return fmt.Errorf("Channel for token %v does not exists", token)
+	}
+
+	demux.ResultsPerID[token] <- data
+	return nil
 }

@@ -1,4 +1,4 @@
-package layered
+package election
 
 // Tree is a recursive helper that helps scheduling the aggregation
 type Tree struct{

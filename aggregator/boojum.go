@@ -1,24 +1,23 @@
 package aggregator
 
+func init() {
+	// Initialize performs precomputation that are necessary before using boojum
+	initialize()
+}
+
 // Boojum is struct wrapper for boojum aggregator
 type Boojum struct {
 	dir string
 }
 
-// New is a boojum constructor
-func New() *Boojum {
+// NewBoojum is a boojum constructor
+func NewBoojum() *Boojum {
 	return &Boojum{dir: ""}
 }
 
 // WithDir attaches a directory to a boojum
 func (boo *Boojum) WithDir(dir string) *Boojum {
 	boo.dir = dir
-	return boo
-}
-
-// Initialize performs precomputation that are necessary before using boojum
-func (boo *Boojum) Initialize() *Boojum {
-	initialize()
 	return boo
 }
 
@@ -51,12 +50,6 @@ func (boo *Boojum) AggregateTrees(left, right []byte) ([]byte) {
 	)
 
 	res := outputTree.ToByte()
-
-	// Unallocate the memory
-	//leftTree.Rm()
-	//rightTree.Rm()
-	//outputTree.Rm()
-
 	return res
 } 
 
@@ -66,6 +59,5 @@ func (boo *Boojum) Verify(buff []byte) bool {
 	res := verify(
 		tree.data,
 	)
-	//tree.Rm()
 	return res
 }
