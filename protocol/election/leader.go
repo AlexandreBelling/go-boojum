@@ -45,7 +45,7 @@ func NewLeader(tasks [][]byte, arity int, nWorkers int, participant *Participant
 		Arity: 			2,
 
 		ProposalsChan: 	make(chan msg.AggregationProposal, 	nWorkers),
-		ResultsChan:	make(chan msg.AggregationResult, 	height),
+		ResultsChan:	make(chan msg.AggregationResult, 	len(tasks)),
 
 		ResultMux: 		NewResultDemuxer(),
 		Root:			NewTree(height, arity),
@@ -58,10 +58,13 @@ func NewLeader(tasks [][]byte, arity int, nWorkers int, participant *Participant
 
 // Run contains the main routine of a Leader instance
 func (l *Leader) Run() {
+
 	go l.Schedule(l.Root)
-	l.Start()  // This starts the
+	go l.DemuxResults()
+	l.Start()  // This triggers the leader
+	
+	// When it's finished publish it on the chain
 	aggregated := <- l.Root.payloadChan
-	// Block until the transaction is mined
 	l.Participant.Blockchain.PublishAggregated(aggregated)
 	<- l.Participant.Blockchain.BatchDone
 	return

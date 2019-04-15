@@ -43,8 +43,8 @@ func (par *Participant) WithBCInterface(blockchain blockchain.Client) (*Particip
 		Backend: 		blockchain,
 
 		BlockStream: 	make(chan ethtypes.Block),
-		NewBatch: 		make(chan [][]byte),
-		BatchDone: 		make(chan bool),
+		NewBatch: 		make(chan [][]byte, 2),
+		BatchDone: 		make(chan bool, 2),
 	}
 
 	return par
@@ -85,7 +85,7 @@ func (par *Participant) Run() {
 
 			case 0:
 				log.Infof("Boojum | Participant: %v | Started leader", par.Address)
-				l := NewLeader(batch, 2, 10, par)
+				l := NewLeader(batch, 2, 100, par)
 				go par.ForwardNetworkToLeader(l, quit) // To Do: Move it as an auxillirary routine of Leader
 				l.Run()
 				quit <- true
