@@ -99,7 +99,8 @@ The leader should schedule tasks as randomly as possible in order to make it imp
 
 In order to build the source we need the following dependencies
 
-* Docker
+* docker
+* docker-compose
 
 ## Runing the demo
 
@@ -107,8 +108,23 @@ In this demo, a single worker go-routine aggregates a total of 8 proofs, the agg
 
 ### With docker
 
-    docker build . -t demo-boojum
-    docker run demo-boojum
+Building the demo
+
+```
+make docker-build
+```
+
+Run the basic example (a single process aggregate 8 proofs)
+
+```
+make run-basic
+```
+
+Run the mocked leader-election example
+
+```
+make run-leader-election
+```
 
 ## Related work
 
