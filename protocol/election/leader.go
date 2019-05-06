@@ -51,7 +51,7 @@ func NewLeader(tasks [][]byte, arity int, nWorkers int, participant *Participant
 		ResultMux: 		NewResultDemuxer(),
 		Root:			NewTree(height, arity),
 		
-		Stop: 			make(chan bool),
+		Stop: 			make(chan bool, 1),
 	}
 	
 	return l
@@ -61,7 +61,7 @@ func NewLeader(tasks [][]byte, arity int, nWorkers int, participant *Participant
 func (l *Leader) Run() {
 
 	// Start the multiplexer goroutine
-	stopDemux := make(chan bool)
+	stopDemux := make(chan bool, 1)
 	go l.DemuxResults(stopDemux)
 	defer func(){ stopDemux <- true }()
 
@@ -122,7 +122,7 @@ func (l *Leader) Schedule(t *Tree) {
 func (l *Leader) DispatchRetry(t *Tree, payloads [][]byte) {
 
 	token := RandomToken()
-	doneChan := make(chan []byte)
+	doneChan := make(chan []byte, 1)
 	l.ResultMux.AddConsumer(token, doneChan)
 
 	taskLoop:

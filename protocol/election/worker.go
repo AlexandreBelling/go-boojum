@@ -44,7 +44,7 @@ func NewWorker(participant *Participant, tasks [][]byte) *Worker {
 		Tasks:			tasks,
 		LeaderAddress:	participant.Blockchain.GetLeaderAddress(tasks),
 
-		JobsIn:			make(chan msg.AggregationRequest),
+		JobsIn:			make(chan msg.AggregationRequest, 1),
 	}
 }
 

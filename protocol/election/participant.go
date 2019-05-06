@@ -29,7 +29,7 @@ type Participant struct {
 func NewParticipant(address string) *Participant {
 	return &Participant{
 		Address: address,
-		StopChan: make(chan bool),
+		StopChan: make(chan bool, 1),
 	}
 }
 
@@ -46,7 +46,7 @@ func (par *Participant) WithBCInterface(blockchain blockchain.Client) (*Particip
 	par.Blockchain = &ParticipantBlockchainInterface{
 		Backend: 		blockchain,
 
-		BlockStream: 	make(chan ethtypes.Block),
+		BlockStream: 	make(chan ethtypes.Block, 1),
 		NewBatch: 		make(chan [][]byte, 1),
 		BatchDone: 		make(chan bool, 1),
 	}
