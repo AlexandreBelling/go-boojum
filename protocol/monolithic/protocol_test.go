@@ -7,7 +7,7 @@ import (
 
 func TestProtocol(t *testing.T) {
 
-	boo := aggregator.New().Initialize().WithDir("./../aggregator/setup").RunGenerators()
+	boo := aggregator.NewBoojum().WithDir("./../aggregator/setup").RunGenerators()
 	batch := make([][]byte, 8)
 
 	// Initialize the backlog
