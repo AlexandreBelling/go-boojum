@@ -23,4 +23,4 @@ run-test: clear-setup
 
 build-all: clear-build build clear-compiled fetch-compiled
 
-all: clear-build build clear-compiled fetch-compiled run-test
+all: build-all run-test
