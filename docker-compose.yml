@@ -4,6 +4,4 @@ services:
   demo:
     build:
       context: .
-    volumes:
-      - .:/usr/src/go/src/github.com/AlexandreBelling/go-boojum
     command: tail -f /dev/null

@@ -1,5 +1,6 @@
 FROM ubuntu:16.04
 
+# Install numerous dependencies
 RUN apt-get update && apt-get install -y \
     wget \
     build-essential \
@@ -9,22 +10,27 @@ RUN apt-get update && apt-get install -y \
     libprocps-dev \
     libgmp-dev \
     pkg-config \
-    software-properties-common
+    software-properties-common \
+    git
 
+# Install golang 1.11
 RUN add-apt-repository ppa:longsleep/golang-backports
 RUN apt-get update
 RUN apt-get install -y golang-1.11
-
-RUN mkdir -p /usr/src/go/src/github.com/AlexandreBelling/go-boojum/aggregator
-COPY ./aggregator /usr/src/go/src/github.com/AlexandreBelling/go-boojum/aggregator
-WORKDIR /usr/src/go/src/github.com/AlexandreBelling/go-boojum
-
-RUN cd aggregator && make build-all
-
-COPY . /usr/src/go/src/github.com/AlexandreBelling/go-boojum
-
 ENV GOPATH /usr/src/go
 ENV GOROOT /usr/lib/go-1.11
+ENV GO11MODULE=on
 ENV PATH $PATH:$GOROOT/bin
 
-CMD cd scheduler && go test
+# Build cpp dependencies
+RUN mkdir -p /go-boojum/aggregator
+WORKDIR /go-boojum/aggregator
+COPY ./aggregator .
+RUN make build-all
+
+# Setup the module
+WORKDIR /go-boojum/
+COPY . .
+RUN go mod download /go-boojum
+
+

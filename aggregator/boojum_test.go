@@ -6,12 +6,13 @@ import (
 
 func TestBoojum(t *testing.T) {
 
-	boo := New().Initialize().WithDir("./setup").RunGenerators()
+	boo := NewBoojum().WithDir("./setup")
 
 	left := boo.MakeExample()
 	right := boo.MakeExample()
-
-	output := boo.AggregateTrees(*left, *right)
+	
+	boo.RunGenerators()
+	output := boo.AggregateTrees(left, right)
 
 	valid := boo.Verify(output)
 	if !valid {

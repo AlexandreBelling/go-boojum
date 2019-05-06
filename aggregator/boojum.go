@@ -1,24 +1,23 @@
 package aggregator
 
+func init() {
+	// Initialize performs precomputation that are necessary before using boojum
+	initialize()
+}
+
 // Boojum is struct wrapper for boojum aggregator
 type Boojum struct {
 	dir string
 }
 
-// New is a boojum constructor
-func New() *Boojum {
+// NewBoojum is a boojum constructor
+func NewBoojum() *Boojum {
 	return &Boojum{dir: ""}
 }
 
 // WithDir attaches a directory to a boojum
 func (boo *Boojum) WithDir(dir string) *Boojum {
 	boo.dir = dir
-	return boo
-}
-
-// Initialize performs precomputation that are necessary before using boojum
-func (boo *Boojum) Initialize() *Boojum {
-	initialize()
 	return boo
 }
 
@@ -29,26 +28,36 @@ func (boo *Boojum) RunGenerators() *Boojum {
 }
 
 // MakeExample returns an example proof
-func (boo *Boojum) MakeExample() *Tree {
+func (boo *Boojum) MakeExample() []byte {
 	tree := newTree(boo)
+	defer tree.Rm()
 	makeExampleProof(&tree.data)
-	return tree
+	return tree.ToByte()
 }
 
 // AggregateTrees returns the aggregated tree
-func (boo *Boojum) AggregateTrees(left, right Tree) (output *Tree) {
-	output = newTree(boo)
+func (boo *Boojum) AggregateTrees(left, right []byte) ([]byte) {
+	
+	// Initialize Tree object
+	leftTree := newTree(boo).SetDataFromBytes(left)
+	rightTree := newTree(boo).SetDataFromBytes(right)
+	outputTree := newTree(boo)
+
 	proveAggregation(
-		left.data,
-		right.data,
-		&output.data,
+		leftTree.data,
+		rightTree.data,
+		&outputTree.data,
 	)
-	return output
+
+	res := outputTree.ToByte()
+	return res
 } 
 
 // Verify returns a boolean indicating that a tree is valid
-func (boo *Boojum) Verify(tree *Tree) bool {
-	return verify(
+func (boo *Boojum) Verify(buff []byte) bool {
+	tree := newTree(boo).SetDataFromBytes(buff)
+	res := verify(
 		tree.data,
 	)
+	return res
 }
