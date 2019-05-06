@@ -24,13 +24,13 @@ func (w *Worker) Run() {
 		select {
 
 		case job := <- w.JobsIn:
-			log.Infof("Boojum | Worker %v | Acknowledging %v", w.Participant.Address, job.Token)
+			log.Debugf("Boojum | Worker %v | Acknowledging %v", w.Participant.Address, job.Token)
 			result := w.DoJob(job.GetSubTrees())
 			w.SendResult(result, job.GetToken())
 			w.SendProposal()
 
 		case <- w.Participant.Blockchain.BatchDone:
-			log.Infof("Boojum | Worker %v | Batch done", w.Participant.Address)
+			log.Debugf("Boojum | Worker %v | Batch done", w.Participant.Address)
 			return
 		}
 	}
@@ -51,7 +51,7 @@ func NewWorker(participant *Participant, tasks [][]byte) *Worker {
 // SendProposal ..
 func (w *Worker) SendProposal() error {
 
-	log.Infof("Boojum | Worker: %v | Sending proposal", w.Participant.Address)
+	log.Debugf("Boojum | Worker: %v | Sending proposal", w.Participant.Address)
 
 	msg := &msg.AggregationProposal{
 			Type: "Proposal",
@@ -93,6 +93,6 @@ func (w* Worker) SendResult(result []byte, token int64) error {
 	}
 
 	w.Participant.Network.Send(marshalled, w.LeaderAddress)
-	log.Infof("Boojum | Worker : %v | Sending result for %v", w.Participant.Address, msg.Token)
+	log.Debugf("Boojum | Worker : %v | Sending result for %v", w.Participant.Address, msg.Token)
 	return nil
 }

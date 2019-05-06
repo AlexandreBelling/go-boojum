@@ -9,6 +9,7 @@ import (
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	msg "github.com/AlexandreBelling/go-boojum/protocol/election/messages"
+	"time"
 )
 
 // Participant ..
@@ -26,7 +27,10 @@ type Participant struct {
 
 // NewParticipant ..
 func NewParticipant(address string) *Participant {
-	return &Participant{Address: address}
+	return &Participant{
+		Address: address,
+		StopChan: make(chan bool),
+	}
 }
 
 // WithNetwork ..
@@ -43,8 +47,8 @@ func (par *Participant) WithBCInterface(blockchain blockchain.Client) (*Particip
 		Backend: 		blockchain,
 
 		BlockStream: 	make(chan ethtypes.Block),
-		NewBatch: 		make(chan [][]byte, 2),
-		BatchDone: 		make(chan bool, 2),
+		NewBatch: 		make(chan [][]byte, 1),
+		BatchDone: 		make(chan bool, 1),
 	}
 
 	return par
@@ -68,23 +72,25 @@ func (par *Participant) GetRank(batch [][]byte) int {
 
 // Run starts the main routine of the participant
 func (par *Participant) Run() {
+
+	quit := make(chan bool, 1) 
 	
 	// Main routine
 	go func() {
 		for {
 			batch := <- par.Blockchain.NewBatch
-			quit := make(chan bool)
+			log.Tracef("Participant %v | Consumed from newBatch", par.Address)
 			switch par.GetRank(batch) {
 
 			default:
-				log.Infof("Boojum | Participant: %v | Started worker", par.Address)
+				log.Debugf("Boojum | Participant: %v | Started worker", par.Address)
 				w := NewWorker(par, batch)
 				go par.ForwardNetworkToWorker(w, quit) // To Do: Move it as an auxillirary routine of Worker
 				w.Run()
 				quit <- true
 
 			case 0:
-				log.Infof("Boojum | Participant: %v | Started leader", par.Address)
+				log.Debugf("Boojum | Participant: %v | Started leader", par.Address)
 				l := NewLeader(batch, 2, 100, par)
 				go par.ForwardNetworkToLeader(l, quit) // To Do: Move it as an auxillirary routine of Leader
 				l.Run()
@@ -93,7 +99,7 @@ func (par *Participant) Run() {
 		}
 	}()
 
-	// Receiving on this chanel triggers early exit
+	// Receiving on this channel triggers early exit
 	<- par.StopChan
 	return
 }
@@ -110,7 +116,7 @@ func (par *Participant) ForwardNetworkToWorker(worker *Worker, quit <-chan bool)
 			request := &msg.AggregationRequest{}
 			err := proto.Unmarshal(marshalled, request)
 			if err == nil && request.Type == "Request" {
-				log.Infof("Boojum | Participant: %v | Got request for %v", par.Address , request.GetToken())
+				log.Debugf("Boojum | Participant: %v | Got request for %v", par.Address , request.GetToken())
 				worker.JobsIn <- *request
 			}
 		}
@@ -132,7 +138,7 @@ func (par *Participant) ForwardNetworkToLeader(leader *Leader, quit <-chan bool)
 			proposal := &msg.AggregationProposal{}
 			err := proto.Unmarshal(marshalled, proposal)
 			if err == nil && proposal.Type == "Proposal" {
-				log.Infof("Boojum | Participant: %v | Got proposal from %v", par.Address ,proposal.Address)
+				log.Debugf("Boojum | Participant: %v | Got proposal from %v", par.Address ,proposal.Address)
 				leader.ProposalsChan <- *proposal
 				continue
 			}
@@ -140,7 +146,7 @@ func (par *Participant) ForwardNetworkToLeader(leader *Leader, quit <-chan bool)
 			result := &msg.AggregationResult{}
 			err = proto.Unmarshal(marshalled, result)
 			if err == nil && result.Type == "Result" {
-				log.Infof("Boojum | Participant: %v | Got result for %v", par.Address ,result.Token)
+				log.Debugf("Boojum | Participant: %v | Got result for %v", par.Address ,result.Token)
 				leader.ResultsChan <- *result
 				continue
 			}
@@ -165,7 +171,7 @@ type ParticipantBlockchainInterface struct {
 // PublishAggregated ..
 func (bci *ParticipantBlockchainInterface) PublishAggregated(aggregated []byte) {
 	// Do stuffs with to make sure the transaction is eventually mined
-	log.Infof("Boojum | Worker | Publish on-chain")
+	log.Infof("Boojum | Worker | Publish on-chain | Time : %v", time.Now())
 	bci.Backend.SendTransactionRetry(&ethtypes.Transaction{})
 	return
 }

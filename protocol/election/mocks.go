@@ -3,6 +3,7 @@ package election
 import(
 	"github.com/AlexandreBelling/go-boojum/aggregator"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	//log "github.com/sirupsen/logrus"
 )
 
 // BlockchainClientProtocolMock is a mock for a blockchain

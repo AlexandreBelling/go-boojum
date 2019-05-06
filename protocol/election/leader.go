@@ -9,6 +9,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"time"
+	"sync"
 )
 
 // Leader ..
@@ -41,7 +42,7 @@ func NewLeader(tasks [][]byte, arity int, nWorkers int, participant *Participant
 
 		Participant:	participant,
 		Tasks:			tasks,
-		Timeout: 		10,
+		Timeout: 		1,
 		Arity: 			2,
 
 		ProposalsChan: 	make(chan msg.AggregationProposal, 	nWorkers),
@@ -59,8 +60,12 @@ func NewLeader(tasks [][]byte, arity int, nWorkers int, participant *Participant
 // Run contains the main routine of a Leader instance
 func (l *Leader) Run() {
 
+	// Start the multiplexer goroutine
+	stopDemux := make(chan bool)
+	go l.DemuxResults(stopDemux)
+	defer func(){ stopDemux <- true }()
+
 	go l.Schedule(l.Root)
-	go l.DemuxResults()
 	l.Start()  // This triggers the leader
 	
 	// When it's finished publish it on the chain
@@ -108,7 +113,7 @@ func (l *Leader) Schedule(t *Tree) {
 	}
 
 	// Ensures the task endup being done
-	log.Infof("Boojum | Leader | Handling a new tasks")
+	log.Debugf("Boojum | Leader | Handling a new tasks")
 	l.DispatchRetry(t, payloads)
 	return 
 }
@@ -129,22 +134,19 @@ func (l *Leader) DispatchRetry(t *Tree, payloads [][]byte) {
 			continue taskLoop
 		}
 
-		timeoutChan := make(chan bool)
-		go func() {
-			time.Sleep(time.Duration(l.Timeout) * time.Second)
-			timeoutChan <- true
-		}()
+		timer := time.NewTimer(time.Duration(l.Timeout) * time.Second)
+		defer timer.Stop()
 
 		// Wait for the tasks to be completed or timeout
 		for {
 			select {
 			case result:= <- doneChan:
 				l.Participant.Aggregator.Verify(result)
-				// TODO: Add a way to test wether the proof is the right proofà
+				// TODO: Add a way to test wether the proof is the right proof
 				t.payloadChan <- result
 				return
-			case <- timeoutChan:
-				log.Infof("Boojum | Leader | Got a timeout for %v", token)
+			case <- timer.C:
+				log.Debugf("Boojum | Leader | Got a timeout for %v", token)
 				continue taskLoop
 			}
 		}
@@ -162,7 +164,7 @@ func (l *Leader) Dispatch(token int64, payloads [][]byte, address string) error 
 	}
 
 	marshalled, err := proto.Marshal(&request)
-	log.Infof("Boojum | Leader | Dispatching %v", token)
+	log.Debugf("Boojum | Leader | Dispatching %v", token)
 	if err != nil {
 		return err
 	}
@@ -171,17 +173,24 @@ func (l *Leader) Dispatch(token int64, payloads [][]byte, address string) error 
 }
 
 // DemuxResults is an auxilliary routine
-func (l *Leader) DemuxResults() {
+func (l *Leader) DemuxResults(quit chan bool) {
 	for {
-		result := <- l.ResultsChan
-		l.ResultMux.FanOut(result.GetToken(), result.GetResult())
+		select {
+
+		case <- quit:
+			close(quit)
+			return
+
+		case result := <- l.ResultsChan:
+			l.ResultMux.FanOut(result.GetToken(), result.GetResult())
+		}
 	}
 }
 
 // RandomToken is panicable function that returns an error
 func RandomToken() int64 {
 	
-	nBig, err := rand.Int(rand.Reader, big.NewInt(2048))
+	nBig, err := rand.Int(rand.Reader, big.NewInt(1<<32))
 	if err != nil {
 		panic(err)
 	}
@@ -191,6 +200,7 @@ func RandomToken() int64 {
 // ResultDemuxer maps token with the right result channel
 type ResultDemuxer struct {
 	ResultsPerID 	map[int64]chan []byte
+	mut 			sync.Mutex
 }
 
 // NewResultDemuxer is a constructor for ResultDemuxer
@@ -202,17 +212,20 @@ func NewResultDemuxer() (*ResultDemuxer) {
 
 // AddConsumer adds a channel in the demultiplexer map
 func (demux *ResultDemuxer) AddConsumer(token int64, consumingChannel chan []byte) {
+	demux.mut.Lock()
 	demux.ResultsPerID[token] = consumingChannel
+	demux.mut.Unlock()
 	return
 }
 
 // FanOut receive a message and pass it to the right channel
 func (demux *ResultDemuxer) FanOut(token int64, data []byte) error {
-
+	demux.mut.Lock()
 	if demux.ResultsPerID[token] == nil {
 		return fmt.Errorf("Channel for token %v does not exists", token)
 	}
 
 	demux.ResultsPerID[token] <- data
+	demux.mut.Unlock()
 	return nil
 }

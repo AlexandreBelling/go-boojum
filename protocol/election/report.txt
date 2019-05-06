@@ -1,0 +1,467 @@
+Initializing curves : size? 2
+With curve 1
+With curve 0
+Done all curves
+With circuit 1
+G1_size_in_bits = 596, G2_size_in_bits = 1788
+r1cs_ppzksnark_verification_key_variable<ppT>::size_in_bits(1) = 11324
+* Number of bits as an input to verifier gadget: 298
+* Number of bits as an input to verifier gadget: 298
+Constraint profiling:
+* Number of constraints in [booleanity]: 34684
+  * Number of constraints in [booleanity; unpack the proof]: 11960
+  * Number of constraints in [booleanity: unpack the verification key]: 22724
+* Number of constraints in [CRH: Hash]: 1
+* Number of constraints in [Check that proof lies on the curve]: 72
+* Number of constraints in [Map proof content]: 40
+* Number of constraints in [Check that proof is correct]: 172242
+  * Number of constraints in [precompute pvk]: 23325
+  * Number of constraints in [online verifier]: 62796
+    * Number of constraints in [accumulate verifier input]: 2976
+    * Number of constraints in [rest of the verifier]: 59820
+  * Number of constraints in [precompute pvk]: 23325
+  * Number of constraints in [online verifier]: 62796
+    * Number of constraints in [accumulate verifier input]: 2976
+    * Number of constraints in [rest of the verifier]: 59820
+* Number of constraints in [Miscellaneous]: 1
+* Number of constraints in aggregator circuit: 207040
+With circuit 0
+G1_size_in_bits = 596, G2_size_in_bits = 1192
+r1cs_ppzksnark_verification_key_variable<ppT>::size_in_bits(1) = 8344
+* Number of bits as an input to verifier gadget: 298
+* Number of bits as an input to verifier gadget: 298
+Constraint profiling:
+* Number of constraints in [booleanity]: 27508
+  * Number of constraints in [booleanity; unpack the proof]: 10764
+  * Number of constraints in [booleanity: unpack the verification key]: 16744
+* Number of constraints in [CRH: Hash]: 1
+* Number of constraints in [Check that proof lies on the curve]: 56
+* Number of constraints in [Map proof content]: 36
+* Number of constraints in [Check that proof is correct]: 93430
+  * Number of constraints in [precompute pvk]: 12270
+  * Number of constraints in [online verifier]: 34445
+    * Number of constraints in [accumulate verifier input]: 2976
+    * Number of constraints in [rest of the verifier]: 31469
+  * Number of constraints in [precompute pvk]: 12270
+  * Number of constraints in [online verifier]: 34445
+    * Number of constraints in [accumulate verifier input]: 2976
+    * Number of constraints in [rest of the verifier]: 31469
+* Number of constraints in [Miscellaneous]: 1
+* Number of constraints in aggregator circuit: 121032
+Done all circuits
+time="2019-05-06T04:36:00+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:00+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:00+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:00+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:01+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:01.769698582 +0200 CEST m=+2.803863065"
+time="2019-05-06T04:36:01+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:01+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:01+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:01+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:02+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:02.970927956 +0200 CEST m=+4.005092458"
+time="2019-05-06T04:36:02+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:02+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:02+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:02+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:04+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:04.172064056 +0200 CEST m=+5.206228546"
+time="2019-05-06T04:36:04+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:04+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:04+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:04+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:05+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:05.373411899 +0200 CEST m=+6.407576400"
+time="2019-05-06T04:36:05+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:05+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:05+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:05+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:06+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:06.574826346 +0200 CEST m=+7.608990830"
+time="2019-05-06T04:36:06+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:06+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:06+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:06+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:07+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:07.776242203 +0200 CEST m=+8.810406682"
+time="2019-05-06T04:36:07+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:07+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:07+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:07+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:08+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:08.977641328 +0200 CEST m=+10.011805817"
+time="2019-05-06T04:36:08+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:08+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:08+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:08+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:10+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:10.178773191 +0200 CEST m=+11.212937667"
+time="2019-05-06T04:36:10+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:10+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:10+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:10+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:11+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:11.380061427 +0200 CEST m=+12.414225899"
+time="2019-05-06T04:36:11+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:11+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:11+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:11+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:12+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:12.581387683 +0200 CEST m=+13.615552165"
+time="2019-05-06T04:36:12+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:12+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:12+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:12+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:13+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:13.782734679 +0200 CEST m=+14.816899177"
+time="2019-05-06T04:36:13+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:13+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:13+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:13+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:14+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:14.983962546 +0200 CEST m=+16.018127030"
+time="2019-05-06T04:36:14+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:14+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:14+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:14+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:16+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:16.185199066 +0200 CEST m=+17.219363581"
+time="2019-05-06T04:36:16+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:16+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:16+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:16+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:17+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:17.386431695 +0200 CEST m=+18.420596183"
+time="2019-05-06T04:36:17+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:17+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:17+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:17+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:18+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:18.587698992 +0200 CEST m=+19.621863468"
+time="2019-05-06T04:36:18+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:18+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:18+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:18+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:19+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:19.788980829 +0200 CEST m=+20.823145318"
+time="2019-05-06T04:36:19+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:19+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:19+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:19+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:20+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:20.990295545 +0200 CEST m=+22.024460036"
+time="2019-05-06T04:36:20+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:20+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:20+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:20+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:22+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:22.191596551 +0200 CEST m=+23.225761040"
+time="2019-05-06T04:36:22+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:22+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:22+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:22+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:23+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:23.392799034 +0200 CEST m=+24.426963513"
+time="2019-05-06T04:36:23+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:23+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:23+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:23+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:24+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:24.593936148 +0200 CEST m=+25.628100636"
+time="2019-05-06T04:36:24+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:24+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:24+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:24+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:25+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:25.795269615 +0200 CEST m=+26.829434106"
+time="2019-05-06T04:36:25+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:25+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:25+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:25+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:26+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:26.996519445 +0200 CEST m=+28.030683944"
+time="2019-05-06T04:36:26+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:26+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:26+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:26+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:28+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:28.197906664 +0200 CEST m=+29.232071142"
+time="2019-05-06T04:36:28+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:28+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:28+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:28+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:29+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:29.399244941 +0200 CEST m=+30.433409427"
+time="2019-05-06T04:36:29+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:29+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:29+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:29+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:30+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:30.600687877 +0200 CEST m=+31.634852360"
+time="2019-05-06T04:36:30+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:30+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:30+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:30+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:31+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:31.801965653 +0200 CEST m=+32.836130143"
+time="2019-05-06T04:36:31+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:31+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:31+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:31+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:33+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:33.003251044 +0200 CEST m=+34.037415517"
+time="2019-05-06T04:36:33+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:33+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:33+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:33+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:34+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:34.204652502 +0200 CEST m=+35.238816994"
+time="2019-05-06T04:36:34+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:34+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:34+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:34+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:35+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:35.406048007 +0200 CEST m=+36.440212496"
+time="2019-05-06T04:36:35+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:35+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:35+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:35+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:36+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:36.607482003 +0200 CEST m=+37.641646492"
+time="2019-05-06T04:36:36+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:36+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:36+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:36+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:37+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:37.808807893 +0200 CEST m=+38.842972384"
+time="2019-05-06T04:36:37+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:37+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:37+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:37+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:39+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:39.010032609 +0200 CEST m=+40.044197100"
+time="2019-05-06T04:36:39+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:39+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:39+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:39+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:40+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:40.211364375 +0200 CEST m=+41.245528865"
+time="2019-05-06T04:36:40+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:40+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:40+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:40+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:41+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:41.412551818 +0200 CEST m=+42.446716297"
+time="2019-05-06T04:36:41+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:41+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:41+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:41+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:42+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:42.613670794 +0200 CEST m=+43.647835274"
+time="2019-05-06T04:36:42+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:42+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:42+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:42+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:43+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:43.815010692 +0200 CEST m=+44.849175169"
+time="2019-05-06T04:36:43+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:43+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:43+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:43+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:45+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:45.017858554 +0200 CEST m=+46.052023041"
+time="2019-05-06T04:36:45+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:45+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:45+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:45+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:46+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:46.219170505 +0200 CEST m=+47.253334989"
+time="2019-05-06T04:36:46+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:46+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:46+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:46+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:47+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:47.420518432 +0200 CEST m=+48.454682910"
+time="2019-05-06T04:36:47+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:47+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:47+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:47+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:48+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:48.621752481 +0200 CEST m=+49.655916960"
+time="2019-05-06T04:36:48+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:48+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:48+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:48+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:49+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:49.822979002 +0200 CEST m=+50.857143494"
+time="2019-05-06T04:36:49+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:49+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:49+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:49+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:51+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:51.024246312 +0200 CEST m=+52.058410803"
+time="2019-05-06T04:36:51+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:51+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:51+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:51+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:52+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:52.225514958 +0200 CEST m=+53.259679440"
+time="2019-05-06T04:36:52+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:52+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:52+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:52+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:53+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:53.426825033 +0200 CEST m=+54.460989491"
+time="2019-05-06T04:36:53+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:53+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:53+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:53+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:54+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:54.628170579 +0200 CEST m=+55.662335071"
+time="2019-05-06T04:36:54+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:54+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:54+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:54+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:55+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:55.829622631 +0200 CEST m=+56.863787122"
+time="2019-05-06T04:36:55+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:55+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:55+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:55+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:57+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:57.031034533 +0200 CEST m=+58.065199006"
+time="2019-05-06T04:36:57+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:57+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:57+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:57+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:58+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:58.232417223 +0200 CEST m=+59.266581707"
+time="2019-05-06T04:36:58+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:58+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:58+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:36:58+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:59+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:36:59.433742216 +0200 CEST m=+60.467906694"
+time="2019-05-06T04:36:59+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:36:59+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:36:59+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:36:59+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:37:00+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:37:00.635065452 +0200 CEST m=+61.669229939"
+time="2019-05-06T04:37:00+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:37:00+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:37:00+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:37:00+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:37:01+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:37:01.836437017 +0200 CEST m=+62.870601500"
+time="2019-05-06T04:37:01+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:37:01+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:37:01+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:37:01+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:37:03+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:37:03.037846903 +0200 CEST m=+64.072011393"
+time="2019-05-06T04:37:03+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:37:03+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:37:03+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:37:03+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:37:04+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:37:04.239005584 +0200 CEST m=+65.273170077"
+time="2019-05-06T04:37:04+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:37:04+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:37:04+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:37:04+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:37:05+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:37:05.440626252 +0200 CEST m=+66.474790717"
+time="2019-05-06T04:37:05+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:37:05+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:37:05+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:37:05+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:37:06+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:37:06.642143995 +0200 CEST m=+67.676308485"
+time="2019-05-06T04:37:06+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:37:06+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:37:06+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:37:06+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:37:07+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:37:07.843617282 +0200 CEST m=+68.877781762"
+time="2019-05-06T04:37:07+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:37:07+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:37:07+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:37:07+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:37:09+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:37:09.044754294 +0200 CEST m=+70.078918796"
+time="2019-05-06T04:37:09+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:37:09+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+time="2019-05-06T04:37:09+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:37:09+02:00" level=info msg="Participant 2 | Consumed from newBatch"
+time="2019-05-06T04:37:10+02:00" level=info msg="Boojum | Worker | Publish on-chain | Time : 2019-05-06 04:37:10.246250252 +0200 CEST m=+71.280414842"
+time="2019-05-06T04:37:10+02:00" level=info msg="Participant 0 | Consumed from newBatch"
+time="2019-05-06T04:37:10+02:00" level=info msg="Participant 3 | Consumed from newBatch"
+time="2019-05-06T04:37:10+02:00" level=info msg="Participant 1 | Consumed from newBatch"
+SIGQUIT: quit
+PC=0x6be59d m=0 sigcode=0
+
+goroutine 18 [running]:
+github.com/AlexandreBelling/go-boojum/protocol/election.TestElection(0xc000102300)
+	/home/alexandrebelling/go/src/github.com/AlexandreBelling/go-boojum/protocol/election/election_test.go:34 +0x67d fp=0xc0000487a8 sp=0xc000048698 pc=0x6be59d
+testing.tRunner(0xc000102300, 0x87fd48)
+	/usr/lib/go-1.12/src/testing/testing.go:865 +0xc0 fp=0xc0000487d0 sp=0xc0000487a8 pc=0x57f2e0
+runtime.goexit()
+	/usr/lib/go-1.12/src/runtime/asm_amd64.s:1337 +0x1 fp=0xc0000487d8 sp=0xc0000487d0 pc=0x4fd531
+created by testing.(*T).Run
+	/usr/lib/go-1.12/src/testing/testing.go:916 +0x357
+
+goroutine 1 [chan receive]:
+testing.(*T).Run(0xc000102300, 0x872c63, 0xc, 0x87fd48, 0x5197a6)
+	/usr/lib/go-1.12/src/testing/testing.go:917 +0x37e
+testing.runTests.func1(0xc000102200)
+	/usr/lib/go-1.12/src/testing/testing.go:1157 +0x78
+testing.tRunner(0xc000102200, 0xc0000abe30)
+	/usr/lib/go-1.12/src/testing/testing.go:865 +0xc0
+testing.runTests(0xc0000dc980, 0xc963b0, 0x1, 0x1, 0x0)
+	/usr/lib/go-1.12/src/testing/testing.go:1155 +0x2a9
+testing.(*M).Run(0xc000100100, 0x0)
+	/usr/lib/go-1.12/src/testing/testing.go:1072 +0x162
+main.main()
+	_testmain.go:42 +0x13e
+
+goroutine 19 [chan receive]:
+github.com/AlexandreBelling/go-boojum/protocol/election.(*Participant).Run(0xc000108060)
+	/home/alexandrebelling/go/src/github.com/AlexandreBelling/go-boojum/protocol/election/participant.go:103 +0x7d
+created by github.com/AlexandreBelling/go-boojum/protocol/election.TestElection
+	/home/alexandrebelling/go/src/github.com/AlexandreBelling/go-boojum/protocol/election/election_test.go:30 +0x310
+
+goroutine 20 [chan receive]:
+github.com/AlexandreBelling/go-boojum/protocol/election.(*Participant).Run(0xc0001080c0)
+	/home/alexandrebelling/go/src/github.com/AlexandreBelling/go-boojum/protocol/election/participant.go:103 +0x7d
+created by github.com/AlexandreBelling/go-boojum/protocol/election.TestElection
+	/home/alexandrebelling/go/src/github.com/AlexandreBelling/go-boojum/protocol/election/election_test.go:30 +0x310
+
+goroutine 21 [chan receive]:
+github.com/AlexandreBelling/go-boojum/protocol/election.(*Participant).Run(0xc000108120)
+	/home/alexandrebelling/go/src/github.com/AlexandreBelling/go-boojum/protocol/election/participant.go:103 +0x7d
+created by github.com/AlexandreBelling/go-boojum/protocol/election.TestElection
+	/home/alexandrebelling/go/src/github.com/AlexandreBelling/go-boojum/protocol/election/election_test.go:30 +0x310
+
+goroutine 22 [chan receive]:
+github.com/AlexandreBelling/go-boojum/protocol/election.(*Participant).Run(0xc000108180)
+	/home/alexandrebelling/go/src/github.com/AlexandreBelling/go-boojum/protocol/election/participant.go:103 +0x7d
+created by github.com/AlexandreBelling/go-boojum/protocol/election.TestElection
+	/home/alexandrebelling/go/src/github.com/AlexandreBelling/go-boojum/protocol/election/election_test.go:30 +0x310
+
+goroutine 6 [select]:
+github.com/AlexandreBelling/go-boojum/protocol/election.(*Worker).Run(0xc0002470c0)
+	/home/alexandrebelling/go/src/github.com/AlexandreBelling/go-boojum/protocol/election/worker.go:24 +0x19d
+github.com/AlexandreBelling/go-boojum/protocol/election.(*Participant).Run.func1(0xc0001080c0, 0xc0000280e0)
+	/home/alexandrebelling/go/src/github.com/AlexandreBelling/go-boojum/protocol/election/participant.go:89 +0x3dd
+created by github.com/AlexandreBelling/go-boojum/protocol/election.(*Participant).Run
+	/home/alexandrebelling/go/src/github.com/AlexandreBelling/go-boojum/protocol/election/participant.go:79 +0x62
+
+goroutine 34 [running]:
+	goroutine running on other thread; stack unavailable
+created by github.com/AlexandreBelling/go-boojum/protocol/election.(*Participant).Run
+	/home/alexandrebelling/go/src/github.com/AlexandreBelling/go-boojum/protocol/election/participant.go:79 +0x62
+
+goroutine 50 [semacquire]:
+fmt.Sprintf(0x87b254, 0x27, 0xc0001bbf98, 0x1, 0x1, 0xc000072220, 0x86c240)
+	/usr/lib/go-1.12/src/fmt/print.go:215 +0x92
+github.com/sirupsen/logrus.(*Entry).Logf(0xc0000c61c0, 0xc000000004, 0x87b254, 0x27, 0xc0001bbf98, 0x1, 0x1)
+	/home/alexandrebelling/go/pkg/mod/github.com/sirupsen/logrus@v1.4.1/entry.go:314 +0x7c
+github.com/sirupsen/logrus.(*Logger).Logf(0xc0000721e0, 0x4, 0x87b254, 0x27, 0xc0001bbf98, 0x1, 0x1)
+	/home/alexandrebelling/go/pkg/mod/github.com/sirupsen/logrus@v1.4.1/logger.go:145 +0x96
+github.com/sirupsen/logrus.(*Logger).Infof(...)
+	/home/alexandrebelling/go/pkg/mod/github.com/sirupsen/logrus@v1.4.1/logger.go:159
+github.com/sirupsen/logrus.Infof(...)
+	/home/alexandrebelling/go/pkg/mod/github.com/sirupsen/logrus@v1.4.1/exported.go:154
+github.com/AlexandreBelling/go-boojum/protocol/election.(*Participant).Run.func1(0xc000108120, 0xc00013a000)
+	/home/alexandrebelling/go/src/github.com/AlexandreBelling/go-boojum/protocol/election/participant.go:82 +0x125
+created by github.com/AlexandreBelling/go-boojum/protocol/election.(*Participant).Run
+	/home/alexandrebelling/go/src/github.com/AlexandreBelling/go-boojum/protocol/election/participant.go:79 +0x62
+
+goroutine 66 [select]:
+github.com/AlexandreBelling/go-boojum/protocol/election.(*Worker).Run(0xc000247040)
+	/home/alexandrebelling/go/src/github.com/AlexandreBelling/go-boojum/protocol/election/worker.go:24 +0x19d
+github.com/AlexandreBelling/go-boojum/protocol/election.(*Participant).Run.func1(0xc000108180, 0xc000156000)
+	/home/alexandrebelling/go/src/github.com/AlexandreBelling/go-boojum/protocol/election/participant.go:89 +0x3dd
+created by github.com/AlexandreBelling/go-boojum/protocol/election.(*Participant).Run
+	/home/alexandrebelling/go/src/github.com/AlexandreBelling/go-boojum/protocol/election/participant.go:79 +0x62
+
+goroutine 1250 [select]:
+github.com/AlexandreBelling/go-boojum/protocol/election.(*Participant).ForwardNetworkToWorker(0xc000108180, 0xc000247040, 0xc000156000)
+	/home/alexandrebelling/go/src/github.com/AlexandreBelling/go-boojum/protocol/election/participant.go:110 +0xd1
+created by github.com/AlexandreBelling/go-boojum/protocol/election.(*Participant).Run.func1
+	/home/alexandrebelling/go/src/github.com/AlexandreBelling/go-boojum/protocol/election/participant.go:88 +0x3cf
+
+goroutine 1251 [select]:
+github.com/AlexandreBelling/go-boojum/protocol/election.(*Participant).ForwardNetworkToWorker(0xc0001080c0, 0xc0002470c0, 0xc0000280e0)
+	/home/alexandrebelling/go/src/github.com/AlexandreBelling/go-boojum/protocol/election/participant.go:110 +0xd1
+created by github.com/AlexandreBelling/go-boojum/protocol/election.(*Participant).Run.func1
+	/home/alexandrebelling/go/src/github.com/AlexandreBelling/go-boojum/protocol/election/participant.go:88 +0x3cf
+
+rax    0x4
+rbx    0x18
+rcx    0x4
+rdx    0x80f120
+rdi    0xc0000dca00
+rsi    0xc0000de1d8
+rbp    0xc000048798
+rsp    0xc000048698
+r8     0x7ffd935569b8
+r9     0x7fe373fd9f6b
+r10    0x2
+r11    0xa62fe0
+r12    0x0
+r13    0x11
+r14    0x8b8230
+r15    0x0
+rip    0x6be59d
+rflags 0x206
+cs     0x33
+fs     0x0
+gs     0x0
+exit status 2
+FAIL	github.com/AlexandreBelling/go-boojum/protocol/election	126.615s
