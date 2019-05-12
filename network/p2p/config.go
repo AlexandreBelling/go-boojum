@@ -80,7 +80,6 @@ func initFlags(f *pflag.FlagSet) {
 }
 
 func readPrivateKey() (crypto.PrivKey, error) {
-
 	privFile := viper.GetString(libp2pClientPrivateKeyFileViperKey)
 	if privFile == "" {
 		return nil, fmt.Errorf("Unable to set identity to p2p node. Did not specify a private key file")

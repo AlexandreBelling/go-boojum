@@ -79,4 +79,12 @@ func (ps *PubSub) Permissionize(provider netCommon.WhiteListProvider) {
 	hst.Network().SetConnHandler(ps.WhiteList.OnlyWhiteListed)
 }
 
+// Subscribe returns a topic object that can be 
+func (ps *PubSub) Subscribe(topic string) (*Topic, error) {
+	subscription, err := ps.Engine.Subscribe(topic)
+	if err != nil {
+		return nil, err
+	}
+	return NewTopic(subscription), nil
+}
 
