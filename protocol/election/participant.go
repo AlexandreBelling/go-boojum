@@ -17,7 +17,7 @@ type Participant struct {
 	Address 				string
 	ParticipantAddresses	[]string
 	
-	Network 				net.Network
+	Network 				net.MessageBroker
 	Blockchain				*ParticipantBlockchainInterface
 	Aggregator				aggregator.Aggregator
 	
@@ -34,7 +34,7 @@ func NewParticipant(address string) *Participant {
 }
 
 // WithNetwork ..
-func (par *Participant) WithNetwork(network net.Network) *Participant {
+func (par *Participant) WithNetwork(network net.MessageBroker) *Participant {
 	par.Network = network
 	par.NetworkIn = network.GetConnexion(par.Address)
 	return par
