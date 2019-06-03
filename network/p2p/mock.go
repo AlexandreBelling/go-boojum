@@ -6,9 +6,16 @@ import (
 
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-pubsub"
+	"github.com/libp2p/go-libp2p-core/crypto"
 
 	bnetwork "github.com/AlexandreBelling/go-boojum/network"
 )
+
+// RandomIdentity ...
+func RandomIdentity() (libp2p.Option) {
+	sk, _, _ := crypto.GenerateSecp256k1Key(nil)
+	return libp2p.Identity(sk)
+}
 
 // DefaultServer ...
 func DefaultServer(addr string, wlp bnetwork.WhiteListProvider) (*Server, error) {

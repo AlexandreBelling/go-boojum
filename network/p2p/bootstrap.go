@@ -38,10 +38,14 @@ type BoostrappingRoutine struct {
 func NewBoostrappingRoutine(
 	ctx 		context.Context,
 	host 		host.Host,
+
 	Wlp 		bnetwork.WhiteListProvider,
+
 	minConns 	int,
 	maxConns 	int,
+	
 	bootstrappingPeriod	time.Duration,
+	
 ) *BoostrappingRoutine {
 
 	pchan, _ := Wlp.GetPeersChan()

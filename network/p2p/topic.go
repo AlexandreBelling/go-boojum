@@ -31,6 +31,8 @@ func (t *Topic) background(out chan []byte) {
 
 	for {
 		ctx, can := context.WithCancel(context.Background())
+		defer can()
+		
 		fromSubscription := make(chan *pubsub.Message)
 		errorChan		 := make(chan error)
 
@@ -50,7 +52,6 @@ func (t *Topic) background(out chan []byte) {
 		select {
 
 		case <- t.ctx.Done():
-			can()
 			return
 
 		case <- errorChan:
