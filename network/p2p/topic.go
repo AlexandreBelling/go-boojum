@@ -1,52 +1,65 @@
+
 package p2p
 
 import (
 	"context"
-	pubsub 		"github.com/libp2p/go-libp2p-pubsub"
+
+	"github.com/libp2p/go-libp2p-pubsub"
 )
 
-// Topic manages communication around a topic in a pubsub manner
+// A Topic is a pubsub abstraction that can be subscribed and published
 type Topic struct {
-	ctx				context.Context
-	cancelCtx		context.CancelFunc
-	topic			string
-	subscription 	*pubsub.Subscription
-	close			chan bool
-	callback		chan []byte
+	ps		*pubsub.PubSub
+	ctx		context.Context
+	Subs 	pubsub.Subscription
 }
 
-// NewTopic is the basic topic constructor
-func NewTopic(subscription *pubsub.Subscription) *Topic {
-	ctx, cancel := context.WithCancel(context.Background())
-	topic := Topic{
-		ctx:			ctx,
-		cancelCtx:		cancel,
-		topic:			subscription.Topic(),
-		subscription:	subscription,
-		callback:		make(chan []byte, 32),
-	}
-	go topic.flowCallback()
-	return &topic
+// Publish a message in the topic
+func (t *Topic) Publish(msg []byte) error {
+	return t.ps.Publish(t.Subs.Topic(), msg)
 }
 
-func (top *Topic) flowCallback() {
+// Chan get a chan for the message
+// Should be called only once
+func (t *Topic) Chan() <-chan []byte {
+	out := make(chan []byte, 20)
+	go t.background(out)
+	return out
+}
+
+func (t *Topic) background(out chan []byte) {
+
 	for {
-		msg, err := top.subscription.Next(top.ctx)
-		if err != nil {
+		ctx, can := context.WithCancel(context.Background())
+		fromSubscription := make(chan *pubsub.Message)
+		errorChan		 := make(chan error)
+
+		go func(){
+			defer close(errorChan)
+			defer close(fromSubscription)
+
+			msg, err := t.Subs.Next(ctx)
+			if err != nil {
+				errorChan <- err
+				return
+			}
+
+			fromSubscription <- msg
+		}()
+
+		select {
+
+		case <- t.ctx.Done():
+			can()
 			return
+
+		case <- errorChan:
+			// It is impossible that this is triggered by a cancellation.
+			// This is truly a pubsub error
+			return // Make the rest of the app, aware that there is a problem
+
+		case msg := <- fromSubscription:
+			out <- msg.GetData()
 		}
-		top.callback <- msg.Data
 	}
-}
-
-// Chan return the consumable topic channel
-func (top *Topic) Chan() <-chan []byte {
-	return top.callback
-}
-
-// Close terminate the topic subscription
-func (top *Topic) Close() {
-	top.cancelCtx()
-	top.subscription.Cancel()
-	close(top.callback)
 }
