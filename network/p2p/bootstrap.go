@@ -2,10 +2,8 @@ package p2p
 
 import (
 	"time"
-	"sort"
 	"sync"
 	"context"
-	"encoding/binary"
 
 	log "github.com/sirupsen/logrus"
 	ma "github.com/multiformats/go-multiaddr"
@@ -209,7 +207,7 @@ func (br *BoostrappingRoutine) SetNewWhiteList(newPeers [][]byte) error {
 		bxd.slice[index] = id
 		index++
 	}
-	sort.Sort(bxd)
+	bxd.Sort()
 
 	br.mut.Lock()
 	br.whitelist = newWhiteList
@@ -243,29 +241,3 @@ func (br *BoostrappingRoutine) authorized(p peer.ID) bool {
 	return listed
 }
 
-// ByXORDistance is util struct for sorting peers by their XOR distance between each others
-type byXORDistance struct {
-	slice []peer.ID
-	reference peer.ID
-}
-
-func (a byXORDistance) Len() int           { return len(a.slice) }
-func (a byXORDistance) Swap(i, j int)      { a.slice[i], a.slice[j] = a.slice[j], a.slice[i] }
-func (a byXORDistance) Less(i, j int) bool { 
-	return XORDistance(a.reference, a.slice[i]) < XORDistance(a.reference, a.slice[j]) 
-}
-
-// XORDistance returns the XOR distance between two peers
-func XORDistance(a, b peer.ID) uint64 {
-
-	aBin := []byte(a)
-	bBin := []byte(b)
-	cBin := make([]byte, len(aBin))
-
-	for i := range aBin {
-		cBin[i] = aBin[i] ^ bBin[i]
-	}
-
-	distance, _ := binary.Uvarint(cBin)
-    return distance
-}
