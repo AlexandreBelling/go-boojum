@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/AlexandreBelling/go-boojum/protocol"
+	"github.com/AlexandreBelling/go-boojum/network"
 )
 
 // Node contains data for each node of the aggregation tree 
@@ -16,13 +17,11 @@ type Node struct {
 	readiness				int
 	arity					int
 	hookOnReadinessUpdate 	HookOnReadinessUpdate
+
+	Topic					network.Topic
 }
 
-// Job contains the 
-type Job struct{
-	InputProofs		[][]byte
-	Label			int
-}
+
 
 // SetAggregateProof set the aggregation field and update the readiness of its parent
 func (n *Node) SetAggregateProof(aggregateProof []byte) {
@@ -48,8 +47,8 @@ func (n *Node) IsReady() bool {
 
 // Job provide a list of proofs to be aggregated
 func (n *Node) Job() *Job {
-
 	inputProofs := make([][]byte, n.arity)
+
 	for index, children := range n.Tree.Children {
 		inputProofs[index] = children.Node.(*Node).AggregateProof
 	}

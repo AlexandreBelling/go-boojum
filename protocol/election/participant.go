@@ -9,7 +9,7 @@ import (
 	net "github.com/AlexandreBelling/go-boojum/network"
 )
 
-// Participant ..
+// Participant is the higher level protocol struct
 type Participant struct {
 	ctx						context.Context
 

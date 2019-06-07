@@ -14,6 +14,15 @@ func (id *ID) Big() *big.Int {
 	return (*common.Hash)(id).Big()
 }
 
+func (id *ID) String() string {
+	return (*common.Hash)(id).Hex()
+}
+
+// StringToID return an id with a string as input
+func StringToID(s string) ID {
+	return ID(common.HexToHash(s))
+}
+
 // IDFromBatch gets an ID from the hash of a protocol
 func IDFromBatch(batch [][]byte) ID {
 	h := crypto.Keccak256Hash(batch...)

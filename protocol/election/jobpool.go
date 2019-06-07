@@ -1,0 +1,52 @@
+package election
+
+import(
+	"fmt"
+	"context"
+)
+// Task is the function processing the job
+type Task func(context.Context, Proposal) error
+
+// JobPool schedules the jobs 
+type JobPool struct {
+	proposalQueue		chan Proposal
+	Task				Task
+}
+
+// EnqueueProposal enqueue a proposal in the channel
+func (j *JobPool) EnqueueProposal(ctx context.Context, p Proposal) error {
+	select {
+	case j.proposalQueue <- p:
+		return nil
+	case <-ctx.Done():
+		return fmt.Errorf("Could not enqueue proposal, proposal queue was full until context expired")
+	}
+}
+
+// DequeueProposal returns a proposal waits for a proposal to be dequeued
+func (j *JobPool) DequeueProposal(ctx context.Context)  (Proposal, error) {
+	select {
+	case p := <- j.proposalQueue:
+		return p, nil
+	case <-ctx.Done():
+		return Proposal{}, fmt.Errorf("Could not dequeue proposal, proposal queue is empty until context expired")
+	}
+}
+
+// AddJob adds the job to the pool until it is completed. 
+// It assumes the job is well-formed.
+func (j *JobPool) AddJob(jobctx context.Context, task Task) {
+	go j.addJobSync(jobctx, task)
+}
+
+// addJobSync handle a new job in a synchronous way
+func (j *JobPool) addJobSync(jobctx context.Context, task Task) {
+	for {
+		// Wait without timeout for a new proposal to arrive
+		propal, _ := j.DequeueProposal(context.Background()) 
+		err := task(jobctx, propal)
+		if err == nil {
+			return
+		}
+	}
+}
