@@ -18,21 +18,26 @@ type Leader struct {
 	Tree			*protocol.Tree // Root of the aggregation tree
 	Round			*Round
 
-	cancelPropSub	context.CancelFunc			
+	cancel			context.CancelFunc			
 }
 
 // Start the leader routine
-func (l *Leader) Start(ctx context.Context) {
+func (l *Leader) Start() {
 	// By populating the leaves of the tree, the aggregation scheduling process is triggered through the
-	ctx, cancel := context.WithCancel(context.Background())
-	l.ctx = 			ctx
-	l.cancelPropSub = 	cancel
+	
 	l.populateLeaves()
 }
 
 // NewLeader constructs a new leader
-func NewLeader(r *Round) *Leader {
-	l := &Leader{ JobPool: 	NewJobPool(), Round: r }
+func NewLeader(ctx context.Context, r *Round) *Leader {
+	ctx, cancel := context.WithCancel(ctx)
+
+	l := &Leader{
+		ctx: 		ctx,
+		cancel:		cancel,
+		JobPool: 	NewJobPool(ctx), 
+		Round: 		r, 
+	}
 
 	l.Tree = protocol.NewTree(l.getTreeHeight(), 2)
 	InitializeNodes(l.Tree, l.OnreadinessUpdateHook())

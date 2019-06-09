@@ -9,13 +9,15 @@ type Task func(context.Context, *Proposal) error
 
 // JobPool schedules the jobs 
 type JobPool struct {
+	ctx				    context.Context
 	proposalQueue		chan *Proposal
 }
 
 // NewJobPool returns a job pool object
-func NewJobPool() *JobPool {
+func NewJobPool(ctx context.Context) *JobPool {
 	return &JobPool{
-		proposalQueue: make(chan *Proposal, 1024),
+		ctx:		    ctx,
+		proposalQueue: 	make(chan *Proposal, 1024),
 	}
 }
 
@@ -49,9 +51,12 @@ func (j *JobPool) AddJob(jobctx context.Context, task Task) {
 func (j *JobPool) addJobSync(jobctx context.Context, task Task) {
 	for {
 		// Wait without timeout for a new proposal to arrive
-		propal, _ := j.DequeueProposal(context.Background()) 
-		err := task(jobctx, propal)
-		if err == nil {
+		select {
+		default:
+			propal, _ := j.DequeueProposal(j.ctx) 
+			err := task(jobctx, propal)
+			if err == nil { return }
+		case <- j.ctx.Done():
 			return
 		}
 	}
