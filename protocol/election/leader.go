@@ -3,6 +3,7 @@ package election
 import(
 	"fmt"
 	"time"
+	"math"
 	"context"
 
 	"github.com/AlexandreBelling/go-boojum/protocol"
@@ -11,9 +12,32 @@ import(
 // Leader is a control struct that schedule the aggregation process
 type Leader struct {
 
+	ctx				context.Context
+
 	JobPool 		*JobPool
 	Tree			*protocol.Tree // Root of the aggregation tree
 	Round			*Round
+
+	cancelPropSub	context.CancelFunc			
+}
+
+// Start the leader routine
+func (l *Leader) Start(ctx context.Context) {
+	// By populating the leaves of the tree, the aggregation scheduling process is triggered through the
+	ctx, cancel := context.WithCancel(context.Background())
+	l.ctx = 			ctx
+	l.cancelPropSub = 	cancel
+	l.populateLeaves()
+}
+
+// NewLeader constructs a new leader
+func NewLeader(r *Round) *Leader {
+	l := &Leader{ JobPool: 	NewJobPool(), Round: r }
+
+	l.Tree = protocol.NewTree(l.getTreeHeight(), 2)
+	InitializeNodes(l.Tree, l.OnreadinessUpdateHook())
+
+	return l
 }
 
 // OnreadinessUpdateHook returns a HookOnReadinessUpdate 
@@ -27,7 +51,7 @@ func (l *Leader) OnreadinessUpdateHook() HookOnReadinessUpdate {
 		}
 
 		if n.IsReady() {
-			l.JobPool.AddJob(context.Background(), task)
+			l.JobPool.AddJob(l.ctx, task)
 		}
 	}
 }
@@ -52,8 +76,8 @@ func (l *Leader) MakeJobHandler(n *Node) (Task, error) {
 	resultChan, _ := topicResult.Chan()
 	jobEncoded := n.Job().Encode()
 
-	handler := func(_ context.Context, p Proposal) error {
-		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(1) * time.Minute)
+	handler := func(ctx context.Context, p *Proposal) error {
+		ctx, cancel := context.WithTimeout(ctx, time.Duration(1) * time.Minute)
 		defer cancel()
 
 		err = l.Round.Participant.Network.Publish(
@@ -81,5 +105,68 @@ func (l *Leader) MakeJobHandler(n *Node) (Task, error) {
 	return handler, nil
 }
 
-// Start the leader routine
-func (l *Leader) Start() {}
+func (l *Leader) getTreeHeight() int {
+	// At the moment, the arity size is stuck to two
+	batchSize := len(l.Round.Batch)
+	if batchSize == 0 {
+		return 1
+	}
+
+	return int(
+		math.Ceil(math.Log2(
+			float64(batchSize),
+		)),
+	) + 1
+}
+
+func(l *Leader) populateLeaves() {
+	leaves := l.Tree.GetLeaves()
+	batch := l.Round.Batch
+
+	for i:=0; i<len(batch); i++ {
+		leaves[i].Node.(*Node).SetAggregateProof(batch[i])
+	}
+
+	if len(batch) == len(leaves) { 
+		return 
+	}
+
+	// Pad the remaining leaves with dummy proofs
+	examples := l.Round.Participant.Aggregator.MakeExample()
+	for i:=len(batch); i<len(leaves); i++ {
+		leaves[i].Node.(*Node).SetAggregateProof(examples)
+	}
+}
+
+// ListenForProposal start an async loop fetching new proposal and enqueuing them
+func(l *Leader) ListenForProposal() error {
+	
+	topic, err := l.Round.Participant.Network.GetTopic(ProposalTopic)
+	if err != nil {
+		return err
+	}
+
+	topicChan, err := topic.Chan()
+	if err != nil {
+		return err
+	}
+
+	go func(){
+		defer topic.Close()
+		for {
+			select {
+			case <- l.ctx.Done():
+				return
+
+			case b, ok := <- topicChan:
+				if !ok { return } // If the topic was closed for another reason
+				decoded, err := MarshalledProposal(b).Decode()
+				if err != nil { continue }
+				l.JobPool.EnqueueProposal(l.ctx, decoded)
+			}
+		}
+	}()
+
+	return nil
+
+}

@@ -5,16 +5,22 @@ import(
 	"context"
 )
 // Task is the function processing the job
-type Task func(context.Context, Proposal) error
+type Task func(context.Context, *Proposal) error
 
 // JobPool schedules the jobs 
 type JobPool struct {
-	proposalQueue		chan Proposal
-	Task				Task
+	proposalQueue		chan *Proposal
+}
+
+// NewJobPool returns a job pool object
+func NewJobPool() *JobPool {
+	return &JobPool{
+		proposalQueue: make(chan *Proposal, 1024),
+	}
 }
 
 // EnqueueProposal enqueue a proposal in the channel
-func (j *JobPool) EnqueueProposal(ctx context.Context, p Proposal) error {
+func (j *JobPool) EnqueueProposal(ctx context.Context, p *Proposal) error {
 	select {
 	case j.proposalQueue <- p:
 		return nil
@@ -24,12 +30,12 @@ func (j *JobPool) EnqueueProposal(ctx context.Context, p Proposal) error {
 }
 
 // DequeueProposal returns a proposal waits for a proposal to be dequeued
-func (j *JobPool) DequeueProposal(ctx context.Context)  (Proposal, error) {
+func (j *JobPool) DequeueProposal(ctx context.Context)  (*Proposal, error) {
 	select {
 	case p := <- j.proposalQueue:
 		return p, nil
 	case <-ctx.Done():
-		return Proposal{}, fmt.Errorf("Could not dequeue proposal, proposal queue is empty until context expired")
+		return &Proposal{}, fmt.Errorf("Could not dequeue proposal, proposal queue is empty until context expired")
 	}
 }
 
