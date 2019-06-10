@@ -6,11 +6,18 @@ import(
 
 // Worker contains all the logic required to aggregate the proofs
 type Worker struct {
-
 	ctx			context.Context
 	cancel		context.CancelFunc
-
 	Round		*Round
+}
+
+// NewWorker returns a newly constructed worker
+func NewWorker(r *Round) *Worker {
+	return &Worker{
+		ctx: 		r.ctx,
+		cancel:		r.cancel,
+		Round:		r,
+	}
 }
 
 // Aggregate performs an aggregation
@@ -45,7 +52,8 @@ func (w *Worker) Start() error {
 	}
 	
 	go func(){
-		
+		defer w.cancel()
+
 		for {
 			err := w.PublishProposal()
 			if err != nil {
@@ -73,5 +81,4 @@ func (w *Worker) Start() error {
 	}()
 
 	return nil
-	
 }

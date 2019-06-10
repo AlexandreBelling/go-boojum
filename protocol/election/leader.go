@@ -11,7 +11,6 @@ import(
 
 // Leader is a control struct that schedule the aggregation process
 type Leader struct {
-
 	ctx				context.Context
 
 	JobPool 		*JobPool
@@ -29,13 +28,11 @@ func (l *Leader) Start() {
 }
 
 // NewLeader constructs a new leader
-func NewLeader(ctx context.Context, r *Round) *Leader {
-	ctx, cancel := context.WithCancel(ctx)
-
+func NewLeader(r *Round) *Leader {
 	l := &Leader{
-		ctx: 		ctx,
-		cancel:		cancel,
-		JobPool: 	NewJobPool(ctx), 
+		ctx: 		r.ctx,
+		cancel:		r.cancel,
+		JobPool: 	NewJobPool(r.ctx), 
 		Round: 		r, 
 	}
 

@@ -8,6 +8,7 @@ import (
 // Round encompasses the computation made in a single
 type Round struct {
 	ctx				context.Context
+	cancel			context.CancelFunc
 
 	ID				protocol.ID
 	Batch			[][]byte
@@ -15,6 +16,21 @@ type Round struct {
 	Members			protocol.IDList
 
 	TopicProvider	*TopicProvider
+}
+
+// NewRound construct a new round
+func NewRound(ctx context.Context, par *Participant, batch [][]byte) *Round {
+	ctx, cancel := context.WithCancel(ctx)
+	r := &Round{
+		ctx:			ctx,
+		cancel:			cancel,
+
+		ID:				protocol.IDFromBatch(batch),
+		Batch:			batch,
+		Participant: 	par,
+	}
+
+	return r.WithTopicProvider()
 }
 
 // WithTopicProvider add a topic provider in the Round object
@@ -42,11 +58,18 @@ func (r *Round)	GetLeaderID() (protocol.ID) {
 
 // run a leader instance
 func (r *Round) runLeader() {
-	NewLeader(r.ctx, r).Start()
+	NewLeader(r).Start()
 }
 
 // run a worker instance
-func (r *Round) runWorker() {}
+func (r *Round) runWorker() {
+	NewWorker(r).Start()
+}
+
+// Close terminate the round
+func (r *Round) Close() {
+	r.cancel()
+}
 
 
 

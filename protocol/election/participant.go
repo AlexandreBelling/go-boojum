@@ -28,7 +28,7 @@ func NewParticipant(ctx context.Context) *Participant {
 }
 
 // Run starts the main routine of the participant
-func (par *Participant) Run() {}
+func (par *Participant) Start() {}
 
 // SetNetwork ..
 func (par *Participant) SetNetwork(network net.PubSub) {
@@ -43,18 +43,4 @@ func (par *Participant) SetBCInterface(blockchain blockchain.Client) {
 // SetAggregator ..
 func (par *Participant) SetAggregator(aggregator aggregator.Aggregator) {
 	par.Aggregator = aggregator
-}
-
-// NewRound returns a round object that can be run to complete a single in the protocol
-func (par *Participant) NewRound(ctx context.Context, batch [][]byte) *Round {
-	r := Round{
-		ctx:			ctx,
-
-		ID:				protocol.IDFromBatch(batch),
-		Batch:			batch,
-		Participant: 	par,
-		Members:		par.MemberProvider.GetMembers(),
-	}
-
-	return r.WithTopicProvider()
 }
