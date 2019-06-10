@@ -1,6 +1,7 @@
 package election
 
 import(
+	"fmt"
 	"time"
 	"context"
 
@@ -27,6 +28,13 @@ func NewWorker(r *Round) *Worker {
 
 // Aggregate performs an aggregation
 func (w *Worker) Aggregate(job *Job) (*Result, error) {
+
+	if len(job.InputProofs) < 2 {
+		log.Infof("Wtf happened got a poorly created proof : %v",
+			job.InputProofs,
+		)
+		return nil, fmt.Errorf("Got an improper job")
+	}
 
 	data := w.Round.Participant.Aggregator.AggregateTrees(
 		job.InputProofs[0], job.InputProofs[1], // TODO: Support multi-arity	

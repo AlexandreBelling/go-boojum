@@ -1,7 +1,6 @@
 package election
 
 import(
-	"fmt"
 	"time"
 	"math"
 	"context"
@@ -69,6 +68,7 @@ func (l *Leader) OnReadinessUpdateHook() NodeHook {
 		}
 
 		if n.IsReady() {
+			log.Infof("On readiness update hook add a new job")
 			l.JobPool.AddJob(l.ctx, task)
 		}
 	}
@@ -76,16 +76,12 @@ func (l *Leader) OnReadinessUpdateHook() NodeHook {
 
 // MakeJobHandler returns a jobpool tasks that handle an aggregation job 
 func (l *Leader) MakeJobHandler(n *Node) (Task, error) {
-
-	if n.Topic != nil { // TODO: Remove when are sure, the code is correct
-		panic(fmt.Errorf("Attempted to create two topic for the same node"))
-	}
-	
 	// No way we can get the error here since we just instantiated the topic
 	rtopic := l.Round.TopicProvider.ResultTopic(l.ctx, n.Label)
 
 	resultChan, err := rtopic.Chan()
 	if err != nil {
+		log.Infof("Got an error there")
 		return nil, err
 	}
 
@@ -101,7 +97,9 @@ func (l *Leader) MakeJobHandler(n *Node) (Task, error) {
 
 		select {
 		case <- ctx.Done():
+			log.Infof("Timed out on a specific job")
 			return ctx.Err()
+
 		case r := <- resultChan:
 			result, err := MarshalledResult(r).Decode()
 			if err != nil {
@@ -174,7 +172,7 @@ func(l *Leader) ListenForProposal() error {
 				decoded, err := MarshalledProposal(b).Decode()
 				if err != nil { continue }
 				l.JobPool.EnqueueProposal(l.ctx, decoded)
-				// log.Infof("Got a new proposal")
+				log.Infof("Got a new proposal in the listen loop")
 			}
 		}
 	}()

@@ -30,7 +30,7 @@ func (j *JobPool) EnqueueProposal(ctx context.Context, p *Proposal) error {
 	case j.proposalQueue <- p:
 		return nil
 	case <-ctx.Done():
-		return fmt.Errorf("Could not enqueue proposal, proposal queue was full until context expired")
+		return ctx.Err()
 	}
 }
 
