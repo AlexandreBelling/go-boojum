@@ -6,7 +6,7 @@ import(
 	"math"
 	"context"
 
-	// log "github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/AlexandreBelling/go-boojum/protocol"
 )
@@ -61,6 +61,7 @@ func (l *Leader) OnRootProofUpdateHook() NodeHook {
 // It is automaticallt triggered by Node when all its children are completed 
 func (l *Leader) OnReadinessUpdateHook() NodeHook {
 	return func(n *Node) {
+		log.Infof("On readiness update hook")
 
 		task, err := l.MakeJobHandler(n)
 		if err != nil {
@@ -70,8 +71,6 @@ func (l *Leader) OnReadinessUpdateHook() NodeHook {
 		if n.IsReady() {
 			l.JobPool.AddJob(l.ctx, task)
 		}
-
-		// log.Infof("Pushed job to the pool")
 	}
 }
 
@@ -84,7 +83,6 @@ func (l *Leader) MakeJobHandler(n *Node) (Task, error) {
 	
 	// No way we can get the error here since we just instantiated the topic
 	rtopic := l.Round.TopicProvider.ResultTopic(l.ctx, n.Label)
-	defer rtopic.Close()
 
 	resultChan, err := rtopic.Chan()
 	if err != nil {
@@ -92,6 +90,7 @@ func (l *Leader) MakeJobHandler(n *Node) (Task, error) {
 	}
 
 	handler := func(ctx context.Context, p *Proposal) error {
+		defer rtopic.Close()
 		ctx, cancel := context.WithTimeout(ctx, time.Duration(1) * time.Minute)
 		defer cancel()
 
@@ -101,18 +100,16 @@ func (l *Leader) MakeJobHandler(n *Node) (Task, error) {
 		}
 
 		select {
-
 		case <- ctx.Done():
 			return ctx.Err()
-
 		case r := <- resultChan:
 			result, err := MarshalledResult(r).Decode()
 			if err != nil {
 				return err
 			}
 
-			n.SetAggregateProof(result.Result)
-			// log.Infof("Got an aggregated result")
+			go n.SetAggregateProof(result.Result)
+			log.Infof("Got an aggregated result")
 			return nil
 		}
 	}
@@ -139,16 +136,19 @@ func(l *Leader) populateLeaves() {
 	batch := l.Round.Batch
 
 	for i:=0; i<len(batch); i++ {
+		log.Info("Set a leaf from the leader")
 		leaves[i].Node.(*Node).SetAggregateProof(batch[i])
 	}
 
-	if len(batch) == len(leaves) { 
+	if len(batch) == len(leaves) {
+		log.Info("That early return")
 		return 
 	}
 
 	// Pad the remaining leaves with dummy proofs
 	examples := l.Round.Participant.Aggregator.MakeExample()
 	for i:=len(batch); i<len(leaves); i++ {
+		log.Info("Set a fake leaf")
 		leaves[i].Node.(*Node).SetAggregateProof(examples)
 	}
 }

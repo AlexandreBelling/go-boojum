@@ -1,6 +1,7 @@
 package election
 
 import(
+	"time"
 	"github.com/golang/protobuf/proto"
 
 	"github.com/AlexandreBelling/go-boojum/protocol"
@@ -50,6 +51,7 @@ func (m MarshalledJob) Decode() (*Job, error) {
 // Proposal contains an data relative to an aggregation proposal
 type Proposal struct {
 	ID			protocol.ID
+	Deadline	time.Time
 }
 
 // MarshalledProposal is an alias for encoded proposal 
@@ -60,6 +62,10 @@ func (p *Proposal) Encode() []byte {
 
 	pb := &msg.AggregationProposal{
 		Id:			p.ID.String(),
+		Deadline:	&msg.Timestamp{
+			Sec: 		p.Deadline.Unix(),
+			Nsec:		p.Deadline.UnixNano(),
+		},
 	}
 
 	marshalled, err := proto.Marshal(pb)
@@ -78,7 +84,11 @@ func (m MarshalledProposal) Decode() (*Proposal, error) {
 	}
 
 	return &Proposal{
-		ID: 	protocol.StringToID(p.Id),
+		ID: 		protocol.StringToID(p.Id),
+		Deadline: 	time.Unix(
+			p.GetDeadline().Sec,
+			p.GetDeadline().Nsec,
+		),
 	}, nil
 }
 

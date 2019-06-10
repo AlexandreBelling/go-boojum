@@ -4,6 +4,12 @@ package boojum.protocol.leader_election;
 message AggregationProposal {
     string type = 1;
     string id = 2;
+    Timestamp deadline = 3;
+}
+
+message Timestamp {
+    int64 sec = 1;
+    int64 nsec = 2;
 }
 
 message AggregationJob {

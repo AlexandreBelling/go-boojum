@@ -1,7 +1,10 @@
 package election
 
 import(
+	"time"
 	"context"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // Worker contains all the logic required to aggregate the proofs
@@ -9,6 +12,7 @@ type Worker struct {
 	ctx			context.Context
 	cancel		context.CancelFunc
 	Round		*Round
+	Timeout		time.Duration // Timeout in second for a proposal
 }
 
 // NewWorker returns a newly constructed worker
@@ -17,6 +21,7 @@ func NewWorker(r *Round) *Worker {
 		ctx: 		r.ctx,
 		cancel:		r.cancel,
 		Round:		r,
+		Timeout:	time.Duration(5) * time.Second,
 	}
 }
 
@@ -35,8 +40,11 @@ func (w *Worker) Aggregate(job *Job) (*Result, error) {
 }
 
 // PublishProposal to alert the leader, we are ready
-func (w *Worker) PublishProposal() error {
-	proposal := &Proposal{ ID: w.Round.Participant.ID }
+func (w *Worker) PublishProposal() (error) {
+	proposal := &Proposal{ 
+		ID: 		w.Round.Participant.ID,
+		Deadline:	time.Now().Add(w.Timeout),
+	}
 	return w.Round.TopicProvider.PublishProposal(proposal)
 }
 
@@ -55,16 +63,32 @@ func (w *Worker) Start() error {
 		defer w.cancel()
 
 		for {
+
 			err := w.PublishProposal()
+			log.Info("Just sent a proposal")
 			if err != nil {
 				return
 			}
+
+			propCtx, propCancel := context.WithTimeout(
+				context.Background(), 
+				w.Timeout,
+			)
 	
-			select {
+			select {	
+			case <- propCtx.Done():
+				log.Info("Sent proposal expired")
+				propCancel()
+				continue
+
 			case <- w.ctx.Done():
+				propCancel()
 				return
 	
 			case jobEncoded := <- jobChan:
+				log.Info("Got a job")
+				propCancel()
+
 				job, err := MarshalledJob(jobEncoded).Decode()
 				if err != nil {
 					return

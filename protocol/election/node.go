@@ -3,6 +3,8 @@ package election
 import (
 	"sync"
 
+	// log "github.com/sirupsen/logrus"
+
 	"github.com/AlexandreBelling/go-boojum/protocol"
 	"github.com/AlexandreBelling/go-boojum/network"
 )
@@ -28,6 +30,7 @@ func (n *Node) SetAggregateProof(aggregateProof []byte) {
 
 	if n.Tree.Parent != nil {
 		n.Tree.Parent.Node.(*Node).IncrementReadiness()
+		return
 	}
 
 	// Else it means we are at the root level

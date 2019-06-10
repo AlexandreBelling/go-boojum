@@ -58,6 +58,7 @@ func (r *Round) Start() {
 		NewLeader(r).Start()
 		return
 	}
+	
 	log.Infof("Starting a new worker")
 	NewWorker(r).Start()
 }
