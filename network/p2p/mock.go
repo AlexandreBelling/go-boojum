@@ -1,11 +1,13 @@
 package p2p
 
 import (
+	"fmt"
 	"time"
 	"context"
 
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-pubsub"
+	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/crypto"
 
 	bnetwork "github.com/AlexandreBelling/go-boojum/network"
@@ -41,4 +43,35 @@ func DefaultServer(addr string, wlp bnetwork.WhiteListProvider) (*Server, error)
 		PubSub: ps,
 		Bootstrap: bstr,
 	}, nil
+}
+
+// MakeServers returns a list of started servers
+func MakeServers(n int) []*Server {
+
+	// Wait for the servers to connect
+	defer time.Sleep(time.Duration(5) * time.Second)
+
+	servers := make([]*Server, n)
+	wlp := bnetwork.NewMockWhiteListProvider()
+
+	for i := 0; i<n; i++ {
+
+		addr := fmt.Sprintf("/ip4/127.0.0.1/tcp/%v", 9000 + i)
+		s, _ := DefaultServer(addr, wlp)
+		servers[i] = s
+
+		pi := peer.AddrInfo{
+			ID:		s.Host.ID(),
+			Addrs:	s.Host.Addrs(),
+		}
+
+		marshalled, _ := pi.MarshalJSON()
+		wlp.Add(marshalled)
+	}
+
+	for _, s := range servers {
+		s.Start()
+	}
+
+	return servers
 }

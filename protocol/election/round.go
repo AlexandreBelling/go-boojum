@@ -45,11 +45,14 @@ func (r *Round) WithTopicProvider() *Round {
 // Start run the Round
 func (r *Round) Start() {
 	defer r.Close()
+	defer r.WaitForResult()
+
 	if r.Participant.ID == r.GetLeaderID() {
 		NewLeader(r).Start()
+		return
 	}
+	
 	NewWorker(r).Start()
-	r.WaitForResult()
 }
 
 // GetLeaderID returns the ID and position of the leader

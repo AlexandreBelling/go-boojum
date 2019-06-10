@@ -1,17 +1,12 @@
 package p2p
 
 import (
-	"fmt"
 	"sync"
 	"time"
 	"testing"
 	"context"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/libp2p/go-libp2p-core/peer"
-
-	bnetwork "github.com/AlexandreBelling/go-boojum/network"
-
 )
 
 const ( 
@@ -22,30 +17,7 @@ const (
 func Test(t *testing.T) {
 
 	log.SetLevel(log.InfoLevel)
-
-	servers := make([]Server, nServerTest)
-	wlp := bnetwork.NewMockWhiteListProvider()
-
-	for i := 0; i<nServerTest; i++ {
-
-		addr := fmt.Sprintf("/ip4/127.0.0.1/tcp/%v", 9000 + i)
-		s, _ := DefaultServer(addr, wlp)
-		servers[i] = *s
-
-		pi := peer.AddrInfo{
-			ID:		s.Host.ID(),
-			Addrs:	s.Host.Addrs(),
-		}
-
-		marshalled, _ := pi.MarshalJSON()
-		wlp.Add(marshalled)
-	}
-
-	for _, s := range servers {
-		s.Start()
-	}
-	time.Sleep(time.Duration(5) * time.Second)
-	
+	servers := MakeServers(nServerTest)
 	topicName := "test"
 
 	var wg sync.WaitGroup
@@ -66,12 +38,12 @@ func Test(t *testing.T) {
 
 	wg.Add(nServerTest)
 	for index, s := range servers {
-		top, err := s.GetTopic(context.Background(), topicName)
+		top := s.GetTopic(context.Background(), topicName)
+		channel, err := top.Chan()
 		if err != nil {
 			t.Fail()
 		}
-
-		go consumeMessage(index, top.Chan())
+		go consumeMessage(index, channel)
 	}
 
 	servers[0].Publish(topicName, []byte("Hello there"))

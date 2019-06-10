@@ -43,7 +43,7 @@ func (w *Worker) PublishProposal() error {
 // Start the Worker routine
 func (w *Worker) Start() error {
 	topic := w.Round.TopicProvider.JobTopic(
-		w.Round.Participant.ID,
+		w.ctx, w.Round.Participant.ID,
 	)
 
 	jobChan, err := topic.Chan()

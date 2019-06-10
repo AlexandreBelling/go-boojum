@@ -6,6 +6,8 @@ import(
 	"math"
 	"context"
 
+	// log "github.com/sirupsen/logrus"
+
 	"github.com/AlexandreBelling/go-boojum/protocol"
 )
 
@@ -68,6 +70,8 @@ func (l *Leader) OnReadinessUpdateHook() NodeHook {
 		if n.IsReady() {
 			l.JobPool.AddJob(l.ctx, task)
 		}
+
+		// log.Infof("Pushed job to the pool")
 	}
 }
 
@@ -79,7 +83,7 @@ func (l *Leader) MakeJobHandler(n *Node) (Task, error) {
 	}
 	
 	// No way we can get the error here since we just instantiated the topic
-	rtopic := l.Round.TopicProvider.ResultTopic(n.Label)
+	rtopic := l.Round.TopicProvider.ResultTopic(l.ctx, n.Label)
 	defer rtopic.Close()
 
 	resultChan, err := rtopic.Chan()
@@ -108,6 +112,7 @@ func (l *Leader) MakeJobHandler(n *Node) (Task, error) {
 			}
 
 			n.SetAggregateProof(result.Result)
+			// log.Infof("Got an aggregated result")
 			return nil
 		}
 	}
@@ -151,7 +156,7 @@ func(l *Leader) populateLeaves() {
 // ListenForProposal start an async loop fetching new proposal and enqueuing them
 func(l *Leader) ListenForProposal() error {
 	
-	topic := l.Round.TopicProvider.ProposalTopic()
+	topic := l.Round.TopicProvider.ProposalTopic(l.ctx)
 	topicChan, err := topic.Chan()
 	if err != nil {
 		return err
@@ -169,6 +174,7 @@ func(l *Leader) ListenForProposal() error {
 				decoded, err := MarshalledProposal(b).Decode()
 				if err != nil { continue }
 				l.JobPool.EnqueueProposal(l.ctx, decoded)
+				// log.Infof("Got a new proposal")
 			}
 		}
 	}()
@@ -179,4 +185,5 @@ func(l *Leader) ListenForProposal() error {
 // PublishOnChain sends the aggregated proof on-chain
 func (l *Leader) PublishOnChain(aggregatedProof []byte) {
 	l.Round.Participant.Blockchain.PublishAggregated(aggregatedProof)
+	// log.Infof("Published the result onchain")
 }

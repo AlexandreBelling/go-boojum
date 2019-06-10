@@ -1,8 +1,10 @@
 package network
 
+import "context"
+
 // PubSub is a generic network interface used y
 type PubSub interface{
-	GetTopic(topic string) Topic
+	GetTopic(ctx context.Context, topic string) Topic
 	Publish(topic string, msg []byte) error
 }
 

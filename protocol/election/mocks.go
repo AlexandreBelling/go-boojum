@@ -13,13 +13,20 @@ type BCClientMock struct {
 	BatchSize		int
 }
 
+// MakeBCClientMock return a blockchain mock object
+func MakeBCClientMock(batchSize int) *BCClientMock {
+	return &BCClientMock{
+		BatchSize: 		batchSize,
+	}
+}
+
 // GenerateBatch creates a batch of zksnark proofs to be aggregated
 // They are all identicals, this is a batch of 32 proofs
 func (mock *BCClientMock) GenerateBatch(boojum aggregator.Aggregator) {
 	leaf := boojum.MakeExample()
-	mock.Batch = make([][]byte, 8)
+	mock.Batch = make([][]byte, mock.BatchSize)
 	
-	for i:=0; i<2; i++ {
+	for i:=0; i<mock.BatchSize; i++ {
 		mock.Batch[i] = leaf
 	}
 }

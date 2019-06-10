@@ -3,6 +3,8 @@ package election
 import (
 	"context"
 
+	// log "github.com/sirupsen/logrus"
+
 	"github.com/AlexandreBelling/go-boojum/protocol"
 	"github.com/AlexandreBelling/go-boojum/aggregator"
 	"github.com/AlexandreBelling/go-boojum/blockchain"
@@ -27,8 +29,22 @@ func NewParticipant(ctx context.Context) *Participant {
 	}
 }
 
-// Run starts the main routine of the participant
-func (par *Participant) Start() {}
+// Start the main routine of the participant
+func (par *Participant) Start() {
+	go par.background()
+}
+
+func (par *Participant) background() {
+	for {
+		select {
+		case batch := <- par.Blockchain.NewBatch:
+			round := NewRound(par.ctx, par, batch)
+			round.Start()
+		case <- par.ctx.Done():
+			return
+		}
+	}
+}
 
 // SetNetwork ..
 func (par *Participant) SetNetwork(network net.PubSub) {

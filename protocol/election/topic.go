@@ -2,6 +2,7 @@ package election
 
 import(
 	"fmt"
+	"context"
 
 	"github.com/AlexandreBelling/go-boojum/protocol"
 	"github.com/AlexandreBelling/go-boojum/network"
@@ -57,23 +58,23 @@ type TopicProvider struct {
 }
 
 // ProposalTopic returns the appropriate result topic
-func (t *TopicProvider) ProposalTopic() (network.Topic) {
+func (t *TopicProvider) ProposalTopic(ctx context.Context) (network.Topic) {
 	return t.Network.GetTopic(
-		ProposalTopic(t.Round.ID),
+		ctx, ProposalTopic(t.Round.ID),
 	)
 }
 
 // JobTopic returns the appropriate job topic
-func (t *TopicProvider) JobTopic(ID protocol.ID) (network.Topic) {
+func (t *TopicProvider) JobTopic(ctx context.Context, ID protocol.ID) (network.Topic) {
 	return t.Network.GetTopic(
-		JobTopic(t.Round.ID, ID),
+		ctx, JobTopic(t.Round.ID, ID),
 	)
 }
 
 // ResultTopic in the appropriate result topic
-func (t *TopicProvider) ResultTopic(label int) (network.Topic) {
+func (t *TopicProvider) ResultTopic(ctx context.Context, label int) (network.Topic) {
 	return t.Network.GetTopic(
-		ResultTopic(t.Round.ID, label),
+		ctx, ResultTopic(t.Round.ID, label),
 	)
 }
 
