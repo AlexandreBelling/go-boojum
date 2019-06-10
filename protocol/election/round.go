@@ -44,10 +44,12 @@ func (r *Round) WithTopicProvider() *Round {
 
 // Start run the Round
 func (r *Round) Start() {
+	defer r.Close()
 	if r.Participant.ID == r.GetLeaderID() {
-		r.runLeader()
+		NewLeader(r).Start()
 	}
-	r.runWorker()
+	NewWorker(r).Start()
+	r.WaitForResult()
 }
 
 // GetLeaderID returns the ID and position of the leader
@@ -56,22 +58,17 @@ func (r *Round)	GetLeaderID() (protocol.ID) {
 	return res
 }
 
-// run a leader instance
-func (r *Round) runLeader() {
-	NewLeader(r).Start()
-}
-
-// run a worker instance
-func (r *Round) runWorker() {
-	NewWorker(r).Start()
-}
+// WaitForResult waits for the round aggregation result to be published on-chain
+func (r *Round) WaitForResult() {
+	select {
+	case <- r.ctx.Done():
+		return
+	case <- r.Participant.Blockchain.BatchDone:
+		return
+	}
+} 
 
 // Close terminate the round
 func (r *Round) Close() {
 	r.cancel()
 }
-
-
-
-
-
