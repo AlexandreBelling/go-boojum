@@ -64,7 +64,6 @@ func (r *Round) Start() {
 
 // GetLeaderID returns the ID and position of the leader
 func (r *Round)	GetLeaderID() (protocol.ID) {
-	log.Infof("r.Members is worth %v", r.Members)
 	_, res := r.Members.SmallestHigherThan(r.ID)
 	return res
 }

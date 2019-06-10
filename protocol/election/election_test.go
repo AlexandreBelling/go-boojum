@@ -35,7 +35,7 @@ func TestElection(t *testing.T) {
 
 		blockchain.Connect(participants[index].Blockchain)
 		id, _ := networks[index].Host.ID().Marshal()
-		copy(participants[index].ID[:], id)
+		copy(participants[index].ID[:32], id)
 		participants[index].Start()
 	}
 
