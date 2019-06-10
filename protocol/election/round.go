@@ -2,6 +2,9 @@ package election
 
 import (
 	"context"
+
+	log "github.com/sirupsen/logrus"
+
 	"github.com/AlexandreBelling/go-boojum/protocol"
 )
 
@@ -28,6 +31,8 @@ func NewRound(ctx context.Context, par *Participant, batch [][]byte) *Round {
 		ID:				protocol.IDFromBatch(batch),
 		Batch:			batch,
 		Participant: 	par,
+		
+		Members: 		par.MemberProvider.GetMembers(),
 	}
 
 	return r.WithTopicProvider()
@@ -47,16 +52,19 @@ func (r *Round) Start() {
 	defer r.Close()
 	defer r.WaitForResult()
 
+	log.Infof("Starting to compute the leader ID")
 	if r.Participant.ID == r.GetLeaderID() {
+		log.Infof("Starting a new leader")
 		NewLeader(r).Start()
 		return
 	}
-	
+	log.Infof("Starting a new worker")
 	NewWorker(r).Start()
 }
 
 // GetLeaderID returns the ID and position of the leader
 func (r *Round)	GetLeaderID() (protocol.ID) {
+	log.Infof("r.Members is worth %v", r.Members)
 	_, res := r.Members.SmallestHigherThan(r.ID)
 	return res
 }

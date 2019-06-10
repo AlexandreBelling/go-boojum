@@ -6,6 +6,7 @@ import (
 	"context"
 	log "github.com/sirupsen/logrus"
 
+	"github.com/AlexandreBelling/go-boojum/protocol"
 	"github.com/AlexandreBelling/go-boojum/aggregator"
 	"github.com/AlexandreBelling/go-boojum/network/p2p"
 )
@@ -19,6 +20,9 @@ func TestElection(t *testing.T) {
 	boojum := &aggregator.MockAggregator{} // It is stateless therefore safe to copy
 	blockchain := MakeBCClientMock(batchSize)
 	blockchain.GenerateBatch(boojum)
+	memberProvider := &protocol.DefaultMembersProvider{ 
+		WLP: networks[0].Bootstrap.Wlp,
+	}
 
 	participants := make([]*Participant, n)
 	for index := range participants {
@@ -27,6 +31,7 @@ func TestElection(t *testing.T) {
 		participants[index].SetAggregator(boojum)
 		participants[index].SetBCInterface(blockchain)
 		participants[index].SetNetwork(networks[index])
+		participants[index].SetMemberProvider(memberProvider)
 
 		blockchain.Connect(participants[index].Blockchain)
 		id, _ := networks[index].Host.ID().Marshal()

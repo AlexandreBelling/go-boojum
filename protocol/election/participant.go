@@ -51,6 +51,11 @@ func (par *Participant) SetNetwork(network net.PubSub) {
 	par.Network = network
 }
 
+// SetMemberProvider ...
+func (par *Participant) SetMemberProvider(provider protocol.MemberProvider) {
+	par.MemberProvider = provider
+}
+
 // SetBCInterface ..
 func (par *Participant) SetBCInterface(blockchain blockchain.Client) {
 	par.Blockchain = NewBCUser(blockchain)
