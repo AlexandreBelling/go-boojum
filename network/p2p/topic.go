@@ -13,7 +13,8 @@ import (
 type Topic struct {
 	ps				*pubsub.PubSub
 	ctx				context.Context
-	Subs 			pubsub.Subscription
+	Subs 			*pubsub.Subscription
+	Name			string
 	cancelChan		context.CancelFunc
 	onceChan		sync.Once
 }
@@ -27,11 +28,24 @@ func (t *Topic) Publish(msg []byte) error {
 // Should be called only once
 func (t *Topic) Chan() (<-chan []byte, error) {
 	var out chan []byte
+	var err error
+
 	t.onceChan.Do(func() {
+
+		subs, err := t.ps.Subscribe(t.Name)
+		if err != nil {
+			return
+		}
+
+		t.Subs = subs
 		out = make(chan []byte, 20)
 		go t.background(out)
 	})
 	
+	if err != nil {
+		return nil, err
+	}
+
 	if out == nil {
 		return nil, fmt.Errorf("Topic.Chan can be called only once")
 	}

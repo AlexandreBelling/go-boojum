@@ -67,28 +67,24 @@ func (l *Leader) MakeJobHandler(n *Node) (Task, error) {
 	if n.Topic != nil { // TODO: Remove when are sure, the code is correct
 		panic(fmt.Errorf("Attempted to create two topic for the same node"))
 	}
+	
+	// No way we can get the error here since we just instantiated the topic
+	rtopic := l.Round.TopicProvider.ResultTopic(n.Label)
+	defer rtopic.Close()
 
-	topicResult, err := l.Round.Participant.Network.GetTopic(
-		fmt.Sprintf("%v.%v", ResultTopicPath, n.Label),
-	)
-	n.Topic = topicResult
-
+	resultChan, err := rtopic.Chan()
 	if err != nil {
 		return nil, err
 	}
-	
-	// No way we can get the error here since we just instantiated the topic
-	resultChan, _ := topicResult.Chan()
-	jobEncoded := n.Job().Encode()
 
 	handler := func(ctx context.Context, p *Proposal) error {
 		ctx, cancel := context.WithTimeout(ctx, time.Duration(1) * time.Minute)
 		defer cancel()
 
-		err = l.Round.Participant.Network.Publish(
-			fmt.Sprintf("%v.%v", RequestTopicPath, p.ID),
-			jobEncoded,
-		)
+		err = l.Round.TopicProvider.PublishJob(n.Job(), p.ID)
+		if err != nil {
+			return err
+		}
 
 		select {
 
@@ -102,7 +98,6 @@ func (l *Leader) MakeJobHandler(n *Node) (Task, error) {
 			}
 
 			n.SetAggregateProof(result.Result)
-			topicResult.Close()
 			return nil
 		}
 	}
@@ -146,11 +141,7 @@ func(l *Leader) populateLeaves() {
 // ListenForProposal start an async loop fetching new proposal and enqueuing them
 func(l *Leader) ListenForProposal() error {
 	
-	topic, err := l.Round.Participant.Network.GetTopic(ProposalTopic)
-	if err != nil {
-		return err
-	}
-
+	topic := l.Round.TopicProvider.ProposalTopic()
 	topicChan, err := topic.Chan()
 	if err != nil {
 		return err

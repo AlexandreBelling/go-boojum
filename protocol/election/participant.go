@@ -47,11 +47,14 @@ func (par *Participant) SetAggregator(aggregator aggregator.Aggregator) {
 
 // NewRound returns a round object that can be run to complete a single in the protocol
 func (par *Participant) NewRound(ctx context.Context, batch [][]byte) *Round {
-	return &Round{
+	r := Round{
 		ctx:			ctx,
+
 		ID:				protocol.IDFromBatch(batch),
 		Batch:			batch,
 		Participant: 	par,
 		Members:		par.MemberProvider.GetMembers(),
 	}
+
+	return r.WithTopicProvider()
 }

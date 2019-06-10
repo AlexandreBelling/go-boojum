@@ -21,22 +21,16 @@ func (s *Server) Start() {
 	s.Bootstrap.Start()
 }
 
-
 // GetTopic returns a topic
-func (s *Server) GetTopic(ctx context.Context, topic string) (bnetwork.Topic, error) {
-	
-	subs, err := s.PubSub.Subscribe(topic)
-	if err != nil {
-		return nil, err
-	}
+func (s *Server) GetTopic(ctx context.Context, topic string) (bnetwork.Topic) {
 
 	res := Topic{
-		ps: 	s.PubSub,
 		ctx:	ctx,
-		Subs: 	*subs,
+	
+		ps: 	s.PubSub,
+		Name: 	topic,
 	}
-
-	return &res, nil
+	return &res
 }
 
 // Publish sends a message in a topic

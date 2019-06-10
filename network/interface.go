@@ -2,7 +2,7 @@ package network
 
 // PubSub is a generic network interface used y
 type PubSub interface{
-	GetTopic(topic string) (Topic, error)
+	GetTopic(topic string) Topic
 	Publish(topic string, msg []byte) error
 }
 
