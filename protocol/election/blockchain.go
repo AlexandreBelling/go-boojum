@@ -8,9 +8,9 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
-// ParticipantBlockchainInterface is a component of Participant. 
+// BCUser is a component of Participant. 
 // It manages its communications with the blockchain.
-type ParticipantBlockchainInterface struct {
+type BCUser struct {
 
 	// Todo pass transactions instead of entires blocks
 	BlockStream			chan ethtypes.Block
@@ -21,9 +21,9 @@ type ParticipantBlockchainInterface struct {
 	ContractAddress		ethcommon.Address
 }
 
-// NewParticipantBlockchainInterface construct a new ParticipantBlockchainInterface
-func NewParticipantBlockchainInterface(blockchain blockchain.Client) *ParticipantBlockchainInterface {
-	return &ParticipantBlockchainInterface{
+// NewBCUser construct a new BCUser
+func NewBCUser(blockchain blockchain.Client) *BCUser {
+	return &BCUser{
 		Backend: 		blockchain,
 
 		BlockStream: 	make(chan ethtypes.Block, 32),
@@ -33,7 +33,7 @@ func NewParticipantBlockchainInterface(blockchain blockchain.Client) *Participan
 }
 
 // PublishAggregated ..
-func (bci *ParticipantBlockchainInterface) PublishAggregated(aggregated []byte) {
+func (bci *BCUser) PublishAggregated(aggregated []byte) {
 	// Do stuffs with to make sure the transaction is eventually mined
 	log.Infof("Boojum | Worker | Publish on-chain | Time : %v", time.Now())
 	bci.Backend.SendTransactionRetry(&ethtypes.Transaction{})
@@ -41,6 +41,6 @@ func (bci *ParticipantBlockchainInterface) PublishAggregated(aggregated []byte) 
 }
 
 // GetLeaderAddress returns the address of the leader for the current batch
-func (bci *ParticipantBlockchainInterface) GetLeaderAddress(tasks [][]byte) string {
+func (bci *BCUser) GetLeaderAddress(tasks [][]byte) string {
 	return "0"
 }

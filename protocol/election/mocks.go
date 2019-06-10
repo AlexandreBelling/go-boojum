@@ -6,16 +6,16 @@ import(
 	//log "github.com/sirupsen/logrus"
 )
 
-// BlockchainClientProtocolMock is a mock for a blockchain
-type BlockchainClientProtocolMock struct {
-	Participants 	[]ParticipantBlockchainInterface
+// BCClientMock is a mock for a blockchain
+type BCClientMock struct {
+	Participants 	[]BCUser
 	Batch 	 		[][]byte
 	BatchSize		int
 }
 
 // GenerateBatch creates a batch of zksnark proofs to be aggregated
 // They are all identicals, this is a batch of 32 proofs
-func (mock *BlockchainClientProtocolMock) GenerateBatch(boojum aggregator.Aggregator) {
+func (mock *BCClientMock) GenerateBatch(boojum aggregator.Aggregator) {
 	leaf := boojum.MakeExample()
 	mock.Batch = make([][]byte, 8)
 	
@@ -25,14 +25,14 @@ func (mock *BlockchainClientProtocolMock) GenerateBatch(boojum aggregator.Aggreg
 }
 
 // Connect creates a transaction with the blockchain interface
-func (mock *BlockchainClientProtocolMock) Connect(blockchainInterface *ParticipantBlockchainInterface) {
+func (mock *BCClientMock) Connect(blockchainInterface *BCUser) {
 	mock.Participants = append(mock.Participants, *blockchainInterface)
 	return
 }
 
 // SendTransactionRetry will ensure the transaction passes. It is a Mock
 // tx argument is never read and is supposed to be sent to nil
-func (mock BlockchainClientProtocolMock) SendTransactionRetry(tx *ethtypes.Transaction) {
+func (mock BCClientMock) SendTransactionRetry(tx *ethtypes.Transaction) {
 	for _, participant := range mock.Participants {
 		participant.BatchDone 	<- true
 		participant.NewBatch 	<- mock.Batch 
@@ -40,7 +40,7 @@ func (mock BlockchainClientProtocolMock) SendTransactionRetry(tx *ethtypes.Trans
 }
 
 // NewBatch initiate the test
-func (mock *BlockchainClientProtocolMock) NewBatch() {
+func (mock *BCClientMock) NewBatch() {
 	for _, participant := range mock.Participants {
 		participant.NewBatch 	<- mock.Batch 
 	}

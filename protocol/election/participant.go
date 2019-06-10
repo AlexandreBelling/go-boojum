@@ -16,7 +16,7 @@ type Participant struct {
 	ID						protocol.ID
 	MemberProvider			protocol.MemberProvider
 	Network 				net.PubSub
-	Blockchain				*ParticipantBlockchainInterface
+	Blockchain				*BCUser
 	Aggregator				aggregator.Aggregator
 }
 
@@ -37,7 +37,7 @@ func (par *Participant) SetNetwork(network net.PubSub) {
 
 // SetBCInterface ..
 func (par *Participant) SetBCInterface(blockchain blockchain.Client) {
-	par.Blockchain = NewParticipantBlockchainInterface(blockchain)
+	par.Blockchain = NewBCUser(blockchain)
 }
 
 // SetAggregator ..
