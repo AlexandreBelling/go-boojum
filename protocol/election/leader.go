@@ -25,6 +25,7 @@ func (l *Leader) Start() {
 	// By populating the leaves of the tree, the aggregation scheduling process is triggered through the
 	
 	l.populateLeaves()
+	l.ListenForProposal()
 }
 
 // NewLeader constructs a new leader
@@ -37,14 +38,26 @@ func NewLeader(r *Round) *Leader {
 	}
 
 	l.Tree = protocol.NewTree(l.getTreeHeight(), 2)
-	InitializeNodes(l.Tree, l.OnreadinessUpdateHook())
+	InitializeNodes(l.Tree, 
+		l.OnReadinessUpdateHook(),
+		l.OnRootProofUpdateHook(),
+	)
 
 	return l
 }
 
-// OnreadinessUpdateHook returns a HookOnReadinessUpdate 
-// that sends a new job to the pool if ready 
-func (l *Leader) OnreadinessUpdateHook() HookOnReadinessUpdate {
+// OnRootProofUpdateHook returns a hook that is triggered when setting a value to the root node's aggregated proof
+// Taking action to publish it on-chain
+func (l *Leader) OnRootProofUpdateHook() NodeHook {
+	return func(n *Node) {
+		l.PublishOnChain(n.AggregateProof)
+	}
+}
+
+// OnReadinessUpdateHook returns a HookOnReadinessUpdate 
+// that sends a new job to the pool if ready
+// It is automaticallt triggered by Node when all its children are completed 
+func (l *Leader) OnReadinessUpdateHook() NodeHook {
 	return func(n *Node) {
 
 		task, err := l.MakeJobHandler(n)
@@ -161,5 +174,9 @@ func(l *Leader) ListenForProposal() error {
 	}()
 
 	return nil
+}
 
+// PublishOnChain sends the aggregated proof on-chain
+func (l *Leader) PublishOnChain(aggregatedProof []byte) {
+	l.Round.Participant.Blockchain.PublishAggregated(aggregatedProof)
 }

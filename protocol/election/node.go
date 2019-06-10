@@ -16,17 +16,22 @@ type Node struct {
 	mut						sync.RWMutex
 	readiness				int
 	arity					int
-	hookOnReadinessUpdate 	HookOnReadinessUpdate
+	hookOnReadinessUpdate 	NodeHook
+	hookOnRootProofUpdate 	NodeHook
 
 	Topic					network.Topic
 }
 
-
-
 // SetAggregateProof set the aggregation field and update the readiness of its parent
 func (n *Node) SetAggregateProof(aggregateProof []byte) {
 	n.AggregateProof = aggregateProof
-	n.Tree.Parent.Node.(*Node).IncrementReadiness()
+
+	if n.Tree.Parent != nil {
+		n.Tree.Parent.Node.(*Node).IncrementReadiness()
+	}
+
+	// Else it means we are at the root level
+	n.hookOnRootProofUpdate(n)
 }
 
 // IncrementReadiness update the readiness of the node
@@ -59,17 +64,18 @@ func (n *Node) Job() *Job {
 	}
 }
 
-// HookOnReadinessUpdate is function that is trigerred by the tree when we update its readiness
+// NodeHook is function that is trigerred by the tree when we update its readiness
 // We choose to apply a hook injection pattern because we don't implement control logic here
-type HookOnReadinessUpdate func(n *Node)
+type NodeHook func(n *Node)
 
 // InitializeNodes performs all the election specific initialization
-func InitializeNodes(t *protocol.Tree, f HookOnReadinessUpdate) {
+func InitializeNodes(t *protocol.Tree, f, g NodeHook) {
 	initializeNodes := makeNodeInitializer()
 	applyOnReadinessUpdateHook := makeHookOnReadinessUpdateApplier(f)
 
 	t.Walk(initializeNodes)
 	t.Walk(applyOnReadinessUpdateHook)
+	t.Node.(*Node).hookOnRootProofUpdate = g
 }
 
 // makeNodeInitializer returns a protocol.TreeFunc that initialize all the nodes of a tree
@@ -91,8 +97,8 @@ func makeNodeInitializer() protocol.TreeFunc {
 	}
 }
 
-// makeHookOnReadinessUpdateApplier returns a TreeFunc setting the HookOnReadinessUpdate
-func makeHookOnReadinessUpdateApplier(f HookOnReadinessUpdate) protocol.TreeFunc {
+// makeHookOnReadinessUpdateApplier returns a TreeFunc setting the NodeHook
+func makeHookOnReadinessUpdateApplier(f NodeHook) protocol.TreeFunc {
 	return func(t *protocol.Tree) {
 		t.Node.(*Node).hookOnReadinessUpdate = f
 	}
