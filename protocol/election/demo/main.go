@@ -9,11 +9,9 @@ import (
 	"github.com/AlexandreBelling/go-boojum/protocol/election"
 )
 
-
-
 func main() {
 
-	const n = 2
+	const n = 4
 	const batchSize = 32
 
 	networks := p2p.MakeServers(n)

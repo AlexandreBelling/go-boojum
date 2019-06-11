@@ -62,12 +62,12 @@ func (l *Leader) OnReadinessUpdateHook() NodeHook {
 	return func(n *Node) {
 		log.Infof("On readiness update hook")
 
-		task, err := l.MakeJobHandler(n)
-		if err != nil {
-			panic(err)
-		}
-
 		if n.IsReady() {
+			task, err := l.MakeJobHandler(n)
+			if err != nil {
+				panic(err)
+			}
+
 			log.Infof("On readiness update hook add a new job")
 			l.JobPool.AddJob(l.ctx, task)
 		}

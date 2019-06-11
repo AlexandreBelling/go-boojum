@@ -18,7 +18,9 @@ type Node struct {
 	mut						sync.RWMutex
 	readiness				int
 	arity					int
-	hookOnReadinessUpdate 	NodeHook
+
+	// This should not have access the lock
+	hookOnReadinessUpdate 	NodeHook 
 	hookOnRootProofUpdate 	NodeHook
 
 	Topic					network.Topic
@@ -26,6 +28,8 @@ type Node struct {
 
 // SetAggregateProof set the aggregation field and update the readiness of its parent
 func (n *Node) SetAggregateProof(aggregateProof []byte) {
+	n.mut.Lock()
+	defer n.mut.Unlock()
 	n.AggregateProof = aggregateProof
 
 	if n.Tree.Parent != nil {
@@ -39,17 +43,12 @@ func (n *Node) SetAggregateProof(aggregateProof []byte) {
 
 // IncrementReadiness update the readiness of the node
 func (n *Node) IncrementReadiness() {
-	defer n.hookOnReadinessUpdate(n)
-
-	n.mut.Lock()
-	defer n.mut.Unlock()
 	n.readiness++
+	n.hookOnReadinessUpdate(n)
 }
 
 // IsReady returns true if the node can start being aggregated
 func (n *Node) IsReady() bool {
-	n.mut.RLock()
-	defer n.mut.RUnlock()
 	return n.readiness == n.arity
 }
 
@@ -69,6 +68,7 @@ func (n *Node) Job() *Job {
 
 // NodeHook is function that is trigerred by the tree when we update its readiness
 // We choose to apply a hook injection pattern because we don't implement control logic here
+// The NodeHook SHOULD NOT have access to the mutex
 type NodeHook func(n *Node)
 
 // InitializeNodes performs all the election specific initialization
