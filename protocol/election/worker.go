@@ -1,98 +1,116 @@
 package election
 
-import (
-	"github.com/golang/protobuf/proto"
+import(
+	"fmt"
+	"time"
+	"context"
+
 	log "github.com/sirupsen/logrus"
-	msg "github.com/AlexandreBelling/go-boojum/protocol/election/messages"
 )
 
-// Worker ..
+// Worker contains all the logic required to aggregate the proofs
 type Worker struct {
-	Participant 		*Participant
-	Tasks				[][]byte
-	JobsIn				chan msg.AggregationRequest
-	LeaderAddress		string
+	ctx			context.Context
+	cancel		context.CancelFunc
+	Round		*Round
+	Timeout		time.Duration // Timeout in second for a proposal
 }
 
-// Run is the main routine of the worker
-func (w *Worker) Run() {
-
-	w.IdentifyLeader(w.Tasks)
-	w.SendProposal()
-
-	for {
-		select {
-
-		case job := <- w.JobsIn:
-			log.Debugf("Boojum | Worker %v | Acknowledging %v", w.Participant.Address, job.Token)
-			result := w.DoJob(job.GetSubTrees())
-			w.SendResult(result, job.GetToken())
-			w.SendProposal()
-
-		case <- w.Participant.Blockchain.BatchDone:
-			log.Debugf("Boojum | Worker %v | Batch done", w.Participant.Address)
-			return
-		}
-	}
-}
-
-// NewWorker construct a new worker object
-func NewWorker(participant *Participant, tasks [][]byte) *Worker {
-
+// NewWorker returns a newly constructed worker
+func NewWorker(r *Round) *Worker {
 	return &Worker{
-		Participant:	participant,
-		Tasks:			tasks,
-		LeaderAddress:	participant.Blockchain.GetLeaderAddress(tasks),
-
-		JobsIn:			make(chan msg.AggregationRequest, 1),
+		ctx: 		r.ctx,
+		cancel:		r.cancel,
+		Round:		r,
+		Timeout:	time.Duration(5) * time.Second,
 	}
 }
 
-// SendProposal ..
-func (w *Worker) SendProposal() error {
+// Aggregate performs an aggregation
+func (w *Worker) Aggregate(job *Job) (*Result, error) {
 
-	log.Debugf("Boojum | Worker: %v | Sending proposal", w.Participant.Address)
+	if len(job.InputProofs) < 2 {
+		log.Infof("Wtf happened got a poorly created proof : %v",
+			job.InputProofs,
+		)
+		return nil, fmt.Errorf("Got an improper job")
+	}
 
-	msg := &msg.AggregationProposal{
-			Type: "Proposal",
-			Address: w.Participant.Address,
-			Signature: []byte{},
+	data := w.Round.Participant.Aggregator.AggregateTrees(
+		job.InputProofs[0], job.InputProofs[1], // TODO: Support multi-arity	
+	)
+
+	return &Result{
+		Result: data,
+		Label: job.Label,
+		ID:	w.Round.Participant.ID,
+	}, nil
+}
+
+// PublishProposal to alert the leader, we are ready
+func (w *Worker) PublishProposal() (error) {
+	proposal := &Proposal{ 
+		ID: 		w.Round.Participant.ID,
+		Deadline:	time.Now().Add(w.Timeout),
+	}
+	return w.Round.TopicProvider.PublishProposal(proposal)
+}
+
+// Start the Worker routine
+func (w *Worker) Start() error {
+	topic := w.Round.TopicProvider.JobTopic(
+		w.ctx, w.Round.Participant.ID,
+	)
+
+	jobChan, err := topic.Chan()
+	if err != nil {
+		return err
+	}
+	
+	go func(){
+		defer w.cancel()
+
+		for {
+
+			err := w.PublishProposal()
+			log.Info("Just sent a proposal")
+			if err != nil {
+				return
+			}
+
+			propCtx, propCancel := context.WithTimeout(
+				context.Background(), 
+				w.Timeout,
+			)
+	
+			select {	
+			case <- propCtx.Done():
+				log.Info("Sent proposal expired")
+				propCancel()
+				continue
+
+			case <- w.ctx.Done():
+				propCancel()
+				return
+	
+			case jobEncoded := <- jobChan:
+				log.Info("Got a job")
+				propCancel()
+
+				job, err := MarshalledJob(jobEncoded).Decode()
+				if err != nil {
+					return
+				}
+	
+				res, err := w.Aggregate(job)
+				if err != nil {
+					return
+				}
+
+				_ = w.Round.TopicProvider.PublishResult(res)
+			}
 		}
+	}()
 
-	marshalled, err := proto.Marshal(msg)
-	if err != nil {
-		panic(err)
-	}
-
-	w.Participant.Network.Send(marshalled, w.LeaderAddress)
-	return nil
-}
-
-// IdentifyLeader ..
-func (w *Worker) IdentifyLeader(newBatch [][]byte) {
-	w.LeaderAddress = "0"
-}
-
-// DoJob ..
-func (w *Worker) DoJob(job [][]byte) []byte {
-	return w.Participant.Aggregator.AggregateTrees(job[0], job[1])
-}
-
-// SendResult ..
-func (w* Worker) SendResult(result []byte, token int64) error {
-
-	msg := &msg.AggregationResult{
-		Type: "Result",
-		Result: result,
-		Token: token,
-	}
-
-	marshalled, err := proto.Marshal(msg)
-	if err != nil {
-		panic(err)
-	}
-
-	w.Participant.Network.Send(marshalled, w.LeaderAddress)
-	log.Debugf("Boojum | Worker : %v | Sending result for %v", w.Participant.Address, msg.Token)
 	return nil
 }

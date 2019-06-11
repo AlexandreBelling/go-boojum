@@ -1,231 +1,187 @@
 package election
 
-import (
-	msg "github.com/AlexandreBelling/go-boojum/protocol/election/messages"
-	"github.com/golang/protobuf/proto"
-	log "github.com/sirupsen/logrus"
-	"math"
-	"math/big"
-	"crypto/rand"
-	"fmt"
+import(
 	"time"
-	"sync"
+	"math"
+	"context"
+
+	log "github.com/sirupsen/logrus"
+
+	"github.com/AlexandreBelling/go-boojum/protocol"
 )
 
-// Leader ..
+// Leader is a control struct that schedule the aggregation process
 type Leader struct {
+	ctx				context.Context
 
-	Participant 	*Participant
-	Tasks			[][]byte
-	Timeout 		int
-	Arity 			int
+	JobPool 		*JobPool
+	Tree			*protocol.Tree // Root of the aggregation tree
+	Round			*Round
 
-	ProposalsChan 	chan msg.AggregationProposal
-	ResultsChan		chan msg.AggregationResult
-	
-	ResultMux  		*ResultDemuxer
-	Root			*Tree
-
-	Stop			chan bool
+	cancel			context.CancelFunc			
 }
 
-// NewLeader construct a new leader instance
-func NewLeader(tasks [][]byte, arity int, nWorkers int, participant *Participant) (l *Leader) {
-
-	height := int(
-		math.Log2(
-			float64(
-				len(tasks),		
-	))) + 1
-
-	l = &Leader{
-
-		Participant:	participant,
-		Tasks:			tasks,
-		Timeout: 		1,
-		Arity: 			2,
-
-		ProposalsChan: 	make(chan msg.AggregationProposal, 	nWorkers),
-		ResultsChan:	make(chan msg.AggregationResult, 	len(tasks)),
-
-		ResultMux: 		NewResultDemuxer(),
-		Root:			NewTree(height, arity),
-		
-		Stop: 			make(chan bool, 1),
-	}
+// Start the leader routine
+func (l *Leader) Start() {
+	// By populating the leaves of the tree, the aggregation scheduling process is triggered through the
 	
+	l.populateLeaves()
+	l.ListenForProposal()
+}
+
+// NewLeader constructs a new leader
+func NewLeader(r *Round) *Leader {
+	l := &Leader{
+		ctx: 		r.ctx,
+		cancel:		r.cancel,
+		JobPool: 	NewJobPool(r.ctx), 
+		Round: 		r, 
+	}
+
+	l.Tree = protocol.NewTree(l.getTreeHeight(), 2)
+	InitializeNodes(l.Tree, 
+		l.OnReadinessUpdateHook(),
+		l.OnRootProofUpdateHook(),
+	)
+
 	return l
 }
 
-// Run contains the main routine of a Leader instance
-func (l *Leader) Run() {
-
-	// Start the multiplexer goroutine
-	stopDemux := make(chan bool, 1)
-	go l.DemuxResults(stopDemux)
-	defer func(){ stopDemux <- true }()
-
-	go l.Schedule(l.Root)
-	l.Start()  // This triggers the leader
-	
-	// When it's finished publish it on the chain
-	aggregated := <- l.Root.payloadChan
-	l.Participant.Blockchain.PublishAggregated(aggregated)
-	<- l.Participant.Blockchain.BatchDone
-	return
-}
-
-// Start dispatching jobs to the workers
-func (l *Leader) Start() {
-	// Starts
-	leaves := l.Root.GetLeaves()
-	for index := range leaves {
-		leaves[index].payloadChan <- l.Tasks[index]
+// OnRootProofUpdateHook returns a hook that is triggered when setting a value to the root node's aggregated proof
+// Taking action to publish it on-chain
+func (l *Leader) OnRootProofUpdateHook() NodeHook {
+	return func(n *Node) {
+		l.PublishOnChain(n.AggregateProof)
 	}
 }
 
-// Schedule waits for operands to be aggregated then add to scheduler
-func (l *Leader) Schedule(t *Tree) {
+// OnReadinessUpdateHook returns a HookOnReadinessUpdate 
+// that sends a new job to the pool if ready
+// It is automaticallt triggered by Node when all its children are completed 
+func (l *Leader) OnReadinessUpdateHook() NodeHook {
+	return func(n *Node) {
+		log.Infof("On readiness update hook")
 
-	// For leaf nodes only
-	if len(t.children) == 0 {
-		// Wait to be assigned a payload
-		t.payload = <- t.payloadChan
+		if n.IsReady() {
+			task, err := l.MakeJobHandler(n)
+			if err != nil {
+				panic(err)
+			}
+
+			log.Infof("On readiness update hook add a new job")
+			l.JobPool.AddJob(l.ctx, task)
+		}
+	}
+}
+
+// MakeJobHandler returns a jobpool tasks that handle an aggregation job 
+func (l *Leader) MakeJobHandler(n *Node) (Task, error) {
+	// No way we can get the error here since we just instantiated the topic
+	rtopic := l.Round.TopicProvider.ResultTopic(l.ctx, n.Label)
+
+	resultChan, err := rtopic.Chan()
+	if err != nil {
+		log.Infof("Got an error there")
+		return nil, err
+	}
+
+	handler := func(ctx context.Context, p *Proposal) error {
+		defer rtopic.Close()
+		ctx, cancel := context.WithTimeout(ctx, time.Duration(1) * time.Minute)
+		defer cancel()
+
+		err = l.Round.TopicProvider.PublishJob(n.Job(), p.ID)
+		if err != nil {
+			return err
+		}
+
+		select {
+		case <- ctx.Done():
+			log.Infof("Timed out on a specific job")
+			return ctx.Err()
+
+		case r := <- resultChan:
+			result, err := MarshalledResult(r).Decode()
+			if err != nil {
+				return err
+			}
+
+			go n.SetAggregateProof(result.Result)
+			log.Infof("Got an aggregated result")
+			return nil
+		}
+	}
+	
+	return handler, nil
+}
+
+func (l *Leader) getTreeHeight() int {
+	// At the moment, the arity size is stuck to two
+	batchSize := len(l.Round.Batch)
+	if batchSize == 0 {
+		return 1
+	}
+
+	return int(
+		math.Ceil(math.Log2(
+			float64(batchSize),
+		)),
+	) + 1
+}
+
+func(l *Leader) populateLeaves() {
+	leaves := l.Tree.GetLeaves()
+	batch := l.Round.Batch
+
+	for i:=0; i<len(batch); i++ {
+		log.Info("Set a leaf from the leader")
+		leaves[i].Node.(*Node).SetAggregateProof(batch[i])
+	}
+
+	if len(batch) == len(leaves) {
+		log.Info("That early return")
 		return 
 	}
 
-	// Recurse the call in children
-	for _, child := range t.children {
-		if child != nil {
-			go l.Schedule(child)
-		}
+	// Pad the remaining leaves with dummy proofs
+	examples := l.Round.Participant.Aggregator.MakeExample()
+	for i:=len(batch); i<len(leaves); i++ {
+		log.Info("Set a fake leaf")
+		leaves[i].Node.(*Node).SetAggregateProof(examples)
 	}
+}
+
+// ListenForProposal start an async loop fetching new proposal and enqueuing them
+func(l *Leader) ListenForProposal() error {
 	
-	// Block until all subtasks have been completed. 
-	payloads := make([][]byte, len(t.children))
-	for index, child := range t.children {
-		if child != nil {
-			// We need to assign in a separate variable 
-			// first before passing to the child attribute
-			payload := <- child.payloadChan
-			payloads[index] = payload
-		}
-	}
-
-	// Ensures the task endup being done
-	log.Debugf("Boojum | Leader | Handling a new tasks")
-	l.DispatchRetry(t, payloads)
-	return 
-}
-
-// DispatchRetry make sure the job is completed
-func (l *Leader) DispatchRetry(t *Tree, payloads [][]byte) {
-
-	token := RandomToken()
-	doneChan := make(chan []byte, 1)
-	l.ResultMux.AddConsumer(token, doneChan)
-
-	taskLoop:
-	for {
-
-		proposal:= <- l.ProposalsChan
-		err := l.Dispatch(token, payloads, proposal.Address)
-		if err != nil {
-			continue taskLoop
-		}
-
-		timer := time.NewTimer(time.Duration(l.Timeout) * time.Second)
-		defer timer.Stop()
-
-		// Wait for the tasks to be completed or timeout
-		for {
-			select {
-			case result:= <- doneChan:
-				l.Participant.Aggregator.Verify(result)
-				// TODO: Add a way to test wether the proof is the right proof
-				t.payloadChan <- result
-				return
-			case <- timer.C:
-				log.Debugf("Boojum | Leader | Got a timeout for %v", token)
-				continue taskLoop
-			}
-		}
-
-	}
-}
-
-// Dispatch dispatch a job to worker
-func (l *Leader) Dispatch(token int64, payloads [][]byte, address string) error {
-
-	request := msg.AggregationRequest{
-		Type: "Request",
-		SubTrees: payloads,
-		Token: token,
-	}
-
-	marshalled, err := proto.Marshal(&request)
-	log.Debugf("Boojum | Leader | Dispatching %v", token)
+	topic := l.Round.TopicProvider.ProposalTopic(l.ctx)
+	topicChan, err := topic.Chan()
 	if err != nil {
 		return err
 	}
 
-	return l.Participant.Network.Send(marshalled, address)
-}
+	go func(){
+		defer topic.Close()
+		for {
+			select {
+			case <- l.ctx.Done():
+				return
 
-// DemuxResults is an auxilliary routine
-func (l *Leader) DemuxResults(quit chan bool) {
-	for {
-		select {
-
-		case <- quit:
-			close(quit)
-			return
-
-		case result := <- l.ResultsChan:
-			l.ResultMux.FanOut(result.GetToken(), result.GetResult())
+			case b, ok := <- topicChan:
+				if !ok { return } // If the topic was closed for another reason
+				decoded, err := MarshalledProposal(b).Decode()
+				if err != nil { continue }
+				l.JobPool.EnqueueProposal(l.ctx, decoded)
+				log.Infof("Got a new proposal in the listen loop")
+			}
 		}
-	}
-}
+	}()
 
-// RandomToken is panicable function that returns an error
-func RandomToken() int64 {
-	
-	nBig, err := rand.Int(rand.Reader, big.NewInt(1<<32))
-	if err != nil {
-		panic(err)
-	}
-	return nBig.Int64()
-}
-
-// ResultDemuxer maps token with the right result channel
-type ResultDemuxer struct {
-	ResultsPerID 	map[int64]chan []byte
-	mut 			sync.Mutex
-}
-
-// NewResultDemuxer is a constructor for ResultDemuxer
-func NewResultDemuxer() (*ResultDemuxer) {
-	return &ResultDemuxer{
-		ResultsPerID: make(map[int64]chan []byte),
-	}
-}
-
-// AddConsumer adds a channel in the demultiplexer map
-func (demux *ResultDemuxer) AddConsumer(token int64, consumingChannel chan []byte) {
-	demux.mut.Lock()
-	demux.ResultsPerID[token] = consumingChannel
-	demux.mut.Unlock()
-	return
-}
-
-// FanOut receive a message and pass it to the right channel
-func (demux *ResultDemuxer) FanOut(token int64, data []byte) error {
-	demux.mut.Lock()
-	if demux.ResultsPerID[token] == nil {
-		return fmt.Errorf("Channel for token %v does not exists", token)
-	}
-
-	demux.ResultsPerID[token] <- data
-	demux.mut.Unlock()
 	return nil
+}
+
+// PublishOnChain sends the aggregated proof on-chain
+func (l *Leader) PublishOnChain(aggregatedProof []byte) {
+	l.Round.Participant.Blockchain.PublishAggregated(aggregatedProof)
+	// log.Infof("Published the result onchain")
 }

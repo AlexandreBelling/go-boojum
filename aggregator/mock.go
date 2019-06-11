@@ -12,7 +12,8 @@ func (mock *MockAggregator) MakeExample() []byte {
 
 // AggregateTrees ..
 func (mock *MockAggregator) AggregateTrees(left, right []byte) []byte {
-	time.Sleep(time.Duration(200) * time.Millisecond)
+	wakeup := time.After(time.Duration(1) * time.Second)
+	<- wakeup
 	return []byte{0, 1, 2, 3, 4, 5, 6}
 }
 
