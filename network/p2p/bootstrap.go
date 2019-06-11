@@ -1,60 +1,60 @@
 package p2p
 
 import (
-	"time"
-	"sync"
 	"context"
+	"sync"
+	"time"
 
-	log "github.com/sirupsen/logrus"
-	ma "github.com/multiformats/go-multiaddr"
 	"github.com/libp2p/go-libp2p-core/host"
-	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/network"
+	"github.com/libp2p/go-libp2p-core/peer"
+	ma "github.com/multiformats/go-multiaddr"
+	log "github.com/sirupsen/logrus"
 
 	bnetwork "github.com/AlexandreBelling/go-boojum/network"
 )
 
 // BoostrappingRoutine embedded all the bootstrapping logic
 type BoostrappingRoutine struct {
-	ctx					context.Context
-	Host				host.Host
+	ctx  context.Context
+	Host host.Host
 
-	mut 				sync.RWMutex
-	Wlp					bnetwork.WhiteListProvider
-	peerChan			chan [][]byte
-	sortedPeers			[]peer.ID
-	whitelist 			map[peer.ID][]ma.Multiaddr
+	mut         sync.RWMutex
+	Wlp         bnetwork.WhiteListProvider
+	peerChan    chan [][]byte
+	sortedPeers []peer.ID
+	whitelist   map[peer.ID][]ma.Multiaddr
 
-	minConns			int
-	target				int
-	maxConns			int
+	minConns int
+	target   int
+	maxConns int
 
-	bootstrappingPeriod	time.Duration
+	bootstrappingPeriod time.Duration
 }
 
 // NewBoostrappingRoutine construct a new BootstrappingRoutine object
 func NewBoostrappingRoutine(
-	ctx 		context.Context,
-	host 		host.Host,
+	ctx context.Context,
+	host host.Host,
 
-	Wlp 		bnetwork.WhiteListProvider,
+	Wlp bnetwork.WhiteListProvider,
 
-	minConns 	int,
-	maxConns 	int,
-	
-	bootstrappingPeriod	time.Duration,
-	
+	minConns int,
+	maxConns int,
+
+	bootstrappingPeriod time.Duration,
+
 ) *BoostrappingRoutine {
 
 	pchan, _ := Wlp.GetPeersChan()
 	return &BoostrappingRoutine{
-		ctx: ctx,
-		Host: host,
-		Wlp: Wlp,
-		peerChan: pchan,
-		minConns: minConns,
-		target: (minConns + maxConns)/2,
-		maxConns: maxConns,
+		ctx:                 ctx,
+		Host:                host,
+		Wlp:                 Wlp,
+		peerChan:            pchan,
+		minConns:            minConns,
+		target:              (minConns + maxConns) / 2,
+		maxConns:            maxConns,
 		bootstrappingPeriod: bootstrappingPeriod,
 	}
 }
@@ -82,16 +82,16 @@ func (br *BoostrappingRoutine) background() error {
 	for {
 		select {
 
-		case <- br.ctx.Done():
+		case <-br.ctx.Done():
 			// Graceful shutdown, nothing to do yet
 
-		case <- ticker.C:
+		case <-ticker.C:
 			err := br.RunBootstrap()
 			if err != nil {
 				return err
 			}
 
-		case newPeers := <- br.peerChan:
+		case newPeers := <-br.peerChan:
 			err := br.SetNewWhiteList(newPeers)
 			if err != nil {
 				return err
@@ -104,7 +104,7 @@ func (br *BoostrappingRoutine) background() error {
 
 // RunBootstrap will adjust the number of connected peers
 func (br *BoostrappingRoutine) RunBootstrap() (err error) {
-	
+
 	nConns := len(br.Host.Network().Peers())
 	if nConns < br.minConns {
 		err = br.AddConnections()
@@ -126,16 +126,18 @@ func (br *BoostrappingRoutine) AddConnections() error {
 	self := br.Host.ID()
 
 	nConns := len(br.Host.Network().Peers())
-	ForEachPeerConnectLoop:
+ForEachPeerConnectLoop:
 	for _, id := range br.sortedPeers {
 
 		connectedNess := br.Host.Network().Connectedness(id)
 		if connectedNess == network.CanConnect || connectedNess == network.NotConnected {
 
-			if id == self { continue ForEachPeerConnectLoop }
+			if id == self {
+				continue ForEachPeerConnectLoop
+			}
 
 			addrInfo := peer.AddrInfo{
-				ID: id, 
+				ID:    id,
 				Addrs: br.whitelist[id],
 			}
 
@@ -145,10 +147,10 @@ func (br *BoostrappingRoutine) AddConnections() error {
 
 			log.Debugf("Found new peer : %v, from : %v", id, br.Host.ID())
 			nConns++
-			if nConns == br.target { 
+			if nConns == br.target {
 				return nil
 			}
-		}	
+		}
 	}
 
 	return nil
@@ -159,12 +161,12 @@ func (br *BoostrappingRoutine) PruneConnections() error {
 
 	br.mut.RLock()
 	defer br.mut.RUnlock()
-	
-	nConns := len(br.Host.Network().Peers())
-	ForEachPeerDisconnectLoop:
-	for i:=len(br.sortedPeers)-1; i>0; i-- {
 
-		id := br.sortedPeers[i] 
+	nConns := len(br.Host.Network().Peers())
+ForEachPeerDisconnectLoop:
+	for i := len(br.sortedPeers) - 1; i > 0; i-- {
+
+		id := br.sortedPeers[i]
 		connectedNess := br.Host.Network().Connectedness(id)
 		if connectedNess == network.Connected {
 
@@ -174,10 +176,10 @@ func (br *BoostrappingRoutine) PruneConnections() error {
 			}
 
 			nConns--
-			if nConns == br.target { 
+			if nConns == br.target {
 				return nil
 			}
-		}	
+		}
 	}
 
 	return nil
@@ -185,7 +187,7 @@ func (br *BoostrappingRoutine) PruneConnections() error {
 
 // SetNewWhiteList replace the old whitelist with the new one
 func (br *BoostrappingRoutine) SetNewWhiteList(newPeers [][]byte) error {
-	
+
 	newWhiteList := make(map[peer.ID][]ma.Multiaddr)
 	for _, marshalled := range newPeers {
 
@@ -198,8 +200,8 @@ func (br *BoostrappingRoutine) SetNewWhiteList(newPeers [][]byte) error {
 	}
 
 	bxd := byXORDistance{
-		slice: 		make([]peer.ID, len(newPeers)),
-		reference:	br.Host.ID(),
+		slice:     make([]peer.ID, len(newPeers)),
+		reference: br.Host.ID(),
 	}
 
 	index := 0 // Population the slice with the keys (peer.IDs) of newWhiteList
@@ -211,7 +213,7 @@ func (br *BoostrappingRoutine) SetNewWhiteList(newPeers [][]byte) error {
 
 	br.mut.Lock()
 	br.whitelist = newWhiteList
-	br.sortedPeers = bxd.slice 
+	br.sortedPeers = bxd.slice
 	br.mut.Unlock()
 
 	return nil
@@ -228,7 +230,7 @@ func (br *BoostrappingRoutine) TrimUnlistedPeers() {
 
 // Permissionize blocks remote connexions from unauthorized peers
 func (br *BoostrappingRoutine) Permissionize() {
-	onlyWhiteListed := func (conn network.Conn) {
+	onlyWhiteListed := func(conn network.Conn) {
 		if !br.authorized(conn.RemotePeer()) {
 			conn.Close()
 		}
@@ -240,4 +242,3 @@ func (br *BoostrappingRoutine) authorized(p peer.ID) bool {
 	_, listed := br.whitelist[p]
 	return listed
 }
-

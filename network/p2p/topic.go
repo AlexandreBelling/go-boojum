@@ -1,22 +1,21 @@
-
 package p2p
 
 import (
+	"context"
 	"fmt"
 	"sync"
-	"context"
 
 	"github.com/libp2p/go-libp2p-pubsub"
 )
 
 // A Topic is a pubsub abstraction that can be subscribed and published
 type Topic struct {
-	ps				*pubsub.PubSub
-	ctx				context.Context
-	Subs 			*pubsub.Subscription
-	Name			string
-	cancelChan		context.CancelFunc
-	onceChan		sync.Once
+	ps         *pubsub.PubSub
+	ctx        context.Context
+	Subs       *pubsub.Subscription
+	Name       string
+	cancelChan context.CancelFunc
+	onceChan   sync.Once
 }
 
 // Publish a message in the topic
@@ -41,7 +40,7 @@ func (t *Topic) Chan() (<-chan []byte, error) {
 		out = make(chan []byte, 20)
 		go t.background(out)
 	})
-	
+
 	if err != nil {
 		return nil, err
 	}
@@ -66,9 +65,9 @@ func (t *Topic) background(out chan []byte) {
 
 	for {
 		fromSubscription := make(chan *pubsub.Message)
-		errorChan		 := make(chan error)
+		errorChan := make(chan error)
 
-		go func(){
+		go func() {
 			defer close(errorChan)
 			defer close(fromSubscription)
 
@@ -83,16 +82,16 @@ func (t *Topic) background(out chan []byte) {
 
 		select {
 
-		case <- t.ctx.Done():
+		case <-t.ctx.Done():
 			return
 
-		case <- errorChan:
+		case <-errorChan:
 			// It is impossible that this is triggered by a cancellation.
 			// This is truly a pubsub error
 			t.cancelChan() // Destroy the context to avoid leaks
-			return // Make the rest of the app, aware that there is a problem
+			return         // Make the rest of the app, aware that there is a problem
 
-		case msg := <- fromSubscription:
+		case msg := <-fromSubscription:
 			out <- msg.GetData()
 		}
 	}

@@ -1,26 +1,27 @@
 package election
 
-import(
+import (
+	"context"
 	"fmt"
 	"time"
-	"context"
 
 	log "github.com/sirupsen/logrus"
 )
+
 // Task is the function processing the job
 type Task func(context.Context, *Proposal) error
 
-// JobPool schedules the jobs 
+// JobPool schedules the jobs
 type JobPool struct {
-	ctx				    context.Context
-	proposalQueue		chan *Proposal
+	ctx           context.Context
+	proposalQueue chan *Proposal
 }
 
 // NewJobPool returns a job pool object
 func NewJobPool(ctx context.Context) *JobPool {
 	return &JobPool{
-		ctx:		    ctx,
-		proposalQueue: 	make(chan *Proposal, 1024),
+		ctx:           ctx,
+		proposalQueue: make(chan *Proposal, 1024),
 	}
 }
 
@@ -35,10 +36,10 @@ func (j *JobPool) EnqueueProposal(ctx context.Context, p *Proposal) error {
 }
 
 // DequeueProposal returns a proposal waits for a proposal to be dequeued
-func (j *JobPool) DequeueProposal(ctx context.Context)  (*Proposal, error) {
+func (j *JobPool) DequeueProposal(ctx context.Context) (*Proposal, error) {
 	for {
 		select {
-		case p := <- j.proposalQueue:
+		case p := <-j.proposalQueue:
 			if p.Deadline.Before(time.Now()) {
 				log.Infof("Got an expired proposal. The deadline was at %v and it is %v", p.Deadline, time.Now())
 				continue // Skip outdated proposal
@@ -50,7 +51,7 @@ func (j *JobPool) DequeueProposal(ctx context.Context)  (*Proposal, error) {
 	}
 }
 
-// AddJob adds the job to the pool until it is completed. 
+// AddJob adds the job to the pool until it is completed.
 // It assumes the job is well-formed.
 func (j *JobPool) AddJob(jobctx context.Context, task Task) {
 	go j.addJobSync(jobctx, task)
@@ -65,8 +66,10 @@ func (j *JobPool) addJobSync(jobctx context.Context, task Task) {
 			propal, _ := j.DequeueProposal(j.ctx)
 			log.Infof("Got proposal from : %v", propal.ID)
 			err := task(jobctx, propal)
-			if err == nil { return }
-		case <- j.ctx.Done():
+			if err == nil {
+				return
+			}
+		case <-j.ctx.Done():
 			return
 		}
 	}

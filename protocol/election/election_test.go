@@ -6,9 +6,9 @@ import (
 	"context"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/AlexandreBelling/go-boojum/protocol"
 	"github.com/AlexandreBelling/go-boojum/aggregator"
 	"github.com/AlexandreBelling/go-boojum/network/p2p"
+	"github.com/AlexandreBelling/go-boojum/protocol"
 )
 
 func TestElection(t *testing.T) {
@@ -20,7 +20,7 @@ func TestElection(t *testing.T) {
 	boojum := &aggregator.MockAggregator{} // It is stateless therefore safe to copy
 	blockchain := MakeBCClientMock(batchSize)
 	blockchain.GenerateBatch(boojum)
-	memberProvider := &protocol.DefaultMembersProvider{ 
+	memberProvider := &protocol.DefaultMembersProvider{
 		WLP: networks[0].Bootstrap.Wlp,
 	}
 
@@ -42,5 +42,5 @@ func TestElection(t *testing.T) {
 	blockchain.NewBatch()
 	log.Infof("Started a new batch")
 
-	<- context.Background().Done()
+	<-context.Background().Done()
 }

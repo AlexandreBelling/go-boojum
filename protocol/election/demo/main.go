@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 
-	"github.com/AlexandreBelling/go-boojum/protocol"
 	"github.com/AlexandreBelling/go-boojum/aggregator"
 	"github.com/AlexandreBelling/go-boojum/network/p2p"
+	"github.com/AlexandreBelling/go-boojum/protocol"
 	"github.com/AlexandreBelling/go-boojum/protocol/election"
 )
 
@@ -18,7 +18,7 @@ func main() {
 	boojum := &aggregator.MockAggregator{} // It is stateless therefore safe to copy
 	blockchain := election.MakeBCClientMock(batchSize)
 	blockchain.GenerateBatch(boojum)
-	memberProvider := &protocol.DefaultMembersProvider{ 
+	memberProvider := &protocol.DefaultMembersProvider{
 		WLP: networks[0].Bootstrap.Wlp,
 	}
 
@@ -38,6 +38,6 @@ func main() {
 	}
 
 	blockchain.NewBatch()
-	<- context.Background().Done()
+	<-context.Background().Done()
 
 }

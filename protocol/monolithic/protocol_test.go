@@ -1,8 +1,8 @@
 package monolithic
 
 import (
-	"testing"
 	"github.com/AlexandreBelling/go-boojum/aggregator"
+	"testing"
 )
 
 func TestProtocol(t *testing.T) {
@@ -11,10 +11,10 @@ func TestProtocol(t *testing.T) {
 	batch := make([][]byte, 8)
 
 	// Initialize the backlog
-	for i:=0; i<8; i++ {
+	for i := 0; i < 8; i++ {
 		batch[i] = boo.MakeExample()
 	}
-	
+
 	worker := &Worker{boo: boo}
 	round := NewRound(batch)
 	done := make(chan bool, 1)

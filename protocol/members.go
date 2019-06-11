@@ -14,7 +14,7 @@ func (i IDList) Min() (int, ID) {
 		if bestValueBig.Cmp(currentValueBig) == 1 {
 
 			bestPosition = currentPosition
-			bestValue 	 = currentValue
+			bestValue = currentValue
 			bestValueBig = currentValueBig
 		}
 	}
@@ -33,7 +33,7 @@ func (i IDList) Max() (int, ID) {
 		if bestValueBig.Cmp(currentValueBig) == -1 {
 
 			bestPosition = currentPosition
-			bestValue 	 = currentValue
+			bestValue = currentValue
 			bestValueBig = currentValueBig
 		}
 	}
@@ -41,43 +41,43 @@ func (i IDList) Max() (int, ID) {
 	return bestPosition, bestValue
 }
 
-// SmallestHigherThan return the smallest ID that is higher 
-// than a given ID. Returns the minimum if no records are higher 
+// SmallestHigherThan return the smallest ID that is higher
+// than a given ID. Returns the minimum if no records are higher
 // than the given ID
 func (i IDList) SmallestHigherThan(id ID) (int, ID) {
 
 	bestPosition, bestValue := i.FirstHigherThan(id)
 
-	if bestPosition == -1 { return i.Min() }
+	if bestPosition == -1 {
+		return i.Min()
+	}
 
-	referenceIDBig 	:= id.Big()
-	bestValueBig	:= bestValue.Big()
+	referenceIDBig := id.Big()
+	bestValueBig := bestValue.Big()
 	for currentPosition, currentValue := range i[bestPosition+1:] {
 
 		currentValueBig := currentValue.Big()
 		if referenceIDBig.Cmp(currentValueBig) == 1 && bestValueBig.Cmp(currentValueBig) == -1 {
 
 			bestPosition = currentPosition
-			bestValue 	 = currentValue
-			bestValueBig = currentValueBig 
+			bestValue = currentValue
+			bestValueBig = currentValueBig
 		}
 	}
 
 	return bestPosition, bestValue
 }
 
-// FirstHigherThan returns the first record in IDList higher than a given reference ID. 
+// FirstHigherThan returns the first record in IDList higher than a given reference ID.
 func (i IDList) FirstHigherThan(id ID) (int, ID) {
 
 	referenceIDBig := id.Big()
 	for currentPosition, current := range i {
-		
+
 		currentBig := current.Big()
 		if referenceIDBig.Cmp(currentBig) == 1 {
-			return currentPosition, current 
+			return currentPosition, current
 		}
 	}
 	return -1, ID{}
 }
-	
-

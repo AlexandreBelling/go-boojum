@@ -1,15 +1,16 @@
 package monolithic
+
 // Round keep tracks of aggregation rounds
 
-import(
-	"math"
+import (
 	"github.com/AlexandreBelling/go-boojum/aggregator"
+	"math"
 )
 
 // Round is a container for
-type Round struct{
-	BackLog []Tree
-	Root *Tree
+type Round struct {
+	BackLog  []Tree
+	Root     *Tree
 	pendings chan Tree
 }
 
@@ -19,26 +20,26 @@ func NewRound(payloads [][]byte) (rou *Round) {
 	height := int(
 		math.Log2(
 			float64(
-				len(payloads),		
-	))) + 1
+				len(payloads),
+			))) + 1
 
 	root := NewTree(height)
 	backlog := root.GetLeaves()
 
 	rou = &Round{
-		BackLog: backlog,
-		Root: root,
+		BackLog:  backlog,
+		Root:     root,
 		pendings: make(chan Tree, len(payloads)),
 	}
 
 	for i := 0; i < len(payloads); i++ {
-		rou.BackLog[i].payloadChan <- payloads[i] 
+		rou.BackLog[i].payloadChan <- payloads[i]
 	}
 
 	return rou
 }
 
-// Launch the scheduler must 
+// Launch the scheduler must
 // be run as a go routine or it will deadlock
 func (rou *Round) Launch() {
 
@@ -46,11 +47,9 @@ func (rou *Round) Launch() {
 }
 
 // Verify the round has been correctly executed
-func (rou *Round) Verify(boo *aggregator.Boojum) (bool) {
+func (rou *Round) Verify(boo *aggregator.Boojum) bool {
 
-	rootPayload := <- rou.Root.payloadChan
+	rootPayload := <-rou.Root.payloadChan
 	rou.Root.payload = rootPayload
 	return boo.Verify(rou.Root.payload)
 }
-
-

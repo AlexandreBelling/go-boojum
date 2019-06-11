@@ -3,7 +3,7 @@ package aggregator
 import "time"
 
 // MockAggregator ..
-type MockAggregator struct {}
+type MockAggregator struct{}
 
 // MakeExample ..
 func (mock *MockAggregator) MakeExample() []byte {
@@ -13,7 +13,7 @@ func (mock *MockAggregator) MakeExample() []byte {
 // AggregateTrees ..
 func (mock *MockAggregator) AggregateTrees(left, right []byte) []byte {
 	wakeup := time.After(time.Duration(1) * time.Second)
-	<- wakeup
+	<-wakeup
 	return []byte{0, 1, 2, 3, 4, 5, 6}
 }
 

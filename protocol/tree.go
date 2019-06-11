@@ -4,25 +4,25 @@ package protocol
 type Node interface{}
 
 // Tree is a recursive helper that helps scheduling the aggregation
-type Tree struct{
-	Parent		*Tree
-	Children 	[]*Tree
-	Node 		Node
+type Tree struct {
+	Parent   *Tree
+	Children []*Tree
+	Node     Node
 }
 
-// NewTree instantiate a tree with given depth and arity 
+// NewTree instantiate a tree with given depth and arity
 func NewTree(height, arity int) *Tree {
 	return newTree(height, arity, nil)
 }
 
 // Set as private to prevent user to mistakenly set a value to t
 func newTree(height, arity int, parent *Tree) *Tree {
-	t := &Tree{ Parent: parent }
+	t := &Tree{Parent: parent}
 
 	if height > 1 {
 		// Recursively create offspring
 		t.Children = make([]*Tree, arity)
-		for i:=0; i<arity; i++ {
+		for i := 0; i < arity; i++ {
 
 			t.Children[i] = newTree(height-1, arity, t)
 		}
@@ -32,7 +32,7 @@ func newTree(height, arity int, parent *Tree) *Tree {
 }
 
 // TreeFunc is an alias for a closure taking a tree as argument and returning nothing
-type TreeFunc func(t *Tree) 
+type TreeFunc func(t *Tree)
 
 // Walk apply a function at each nodes of the subtree, starting with the root
 // It's depth-first
@@ -73,6 +73,3 @@ func (t *Tree) GetLeaves() (leaves []*Tree) {
 	t.Walk(accumulateIfLeaf)
 	return getAccumulator()
 }
-
-
-

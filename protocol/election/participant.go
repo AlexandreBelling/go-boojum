@@ -5,27 +5,27 @@ import (
 
 	// log "github.com/sirupsen/logrus"
 
-	"github.com/AlexandreBelling/go-boojum/protocol"
 	"github.com/AlexandreBelling/go-boojum/aggregator"
 	"github.com/AlexandreBelling/go-boojum/blockchain"
 	net "github.com/AlexandreBelling/go-boojum/network"
+	"github.com/AlexandreBelling/go-boojum/protocol"
 )
 
 // Participant is the higher level protocol struct
 type Participant struct {
-	ctx						context.Context
+	ctx context.Context
 
-	ID						protocol.ID
-	MemberProvider			protocol.MemberProvider
-	Network 				net.PubSub
-	Blockchain				*BCUser
-	Aggregator				aggregator.Aggregator
+	ID             protocol.ID
+	MemberProvider protocol.MemberProvider
+	Network        net.PubSub
+	Blockchain     *BCUser
+	Aggregator     aggregator.Aggregator
 }
 
 // NewParticipant ..
 func NewParticipant(ctx context.Context) *Participant {
 	return &Participant{
-		ctx: 	ctx,
+		ctx: ctx,
 	}
 }
 
@@ -37,10 +37,10 @@ func (par *Participant) Start() {
 func (par *Participant) background() {
 	for {
 		select {
-		case batch := <- par.Blockchain.NewBatch:
+		case batch := <-par.Blockchain.NewBatch:
 			round := NewRound(par.ctx, par, batch)
 			round.Start()
-		case <- par.ctx.Done():
+		case <-par.ctx.Done():
 			return
 		}
 	}

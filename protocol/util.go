@@ -1,9 +1,9 @@
 package protocol
 
 import (
-	"math/big"
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
+	"math/big"
 )
 
 // ID is a general purpose identifier for identities

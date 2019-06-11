@@ -1,23 +1,23 @@
 package p2p
 
 import (
-	"sort"
 	"math/big"
+	"sort"
 
 	"github.com/libp2p/go-libp2p-core/peer"
 )
 
 // ByXORDistance is util struct for sorting peers by their XOR distance between each others
 type byXORDistance struct {
-	slice []peer.ID
+	slice     []peer.ID
 	reference peer.ID
 }
 
-func (x byXORDistance) Len() int           { return len(x.slice) }
-func (x byXORDistance) Swap(i, j int)      { x.slice[i], x.slice[j] = x.slice[j], x.slice[i] }
+func (x byXORDistance) Len() int      { return len(x.slice) }
+func (x byXORDistance) Swap(i, j int) { x.slice[i], x.slice[j] = x.slice[j], x.slice[i] }
 func (x byXORDistance) Less(i, j int) bool {
-	left 	:= XORDistance(x.reference, x.slice[i])
-	right 	:= XORDistance(x.reference, x.slice[j])
+	left := XORDistance(x.reference, x.slice[i])
+	right := XORDistance(x.reference, x.slice[j])
 	return left.Cmp(&right) == -1
 }
 func (x byXORDistance) Sort() { sort.Sort(x) }
@@ -35,7 +35,7 @@ func XORDistance(a, b peer.ID) big.Int {
 
 	var distance big.Int
 	distance.SetBytes(cBin)
-    return distance
+	return distance
 }
 
-// Sort the 
+// Sort the

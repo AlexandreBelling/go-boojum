@@ -13,7 +13,7 @@ type MemberProvider interface {
 
 // DefaultMembersProvider is an implementation of MembersProvider
 type DefaultMembersProvider struct {
-	WLP 	network.WhiteListProvider
+	WLP network.WhiteListProvider
 }
 
 // GetMembers return the list of all the members

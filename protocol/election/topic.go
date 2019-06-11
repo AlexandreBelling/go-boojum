@@ -1,35 +1,35 @@
 package election
 
-import(
-	"fmt"
+import (
 	"context"
+	"fmt"
 
-	"github.com/AlexandreBelling/go-boojum/protocol"
 	"github.com/AlexandreBelling/go-boojum/network"
+	"github.com/AlexandreBelling/go-boojum/protocol"
 )
 
 var (
 	// TopicPath is the basis of every topic used by this protocol
-	TopicPath 				= "boojum.protocol.election"
+	TopicPath = "boojum.protocol.election"
 	// ProposalTopicPath is the base string used for the proposals
-	ProposalTopicPath 		string
+	ProposalTopicPath string
 	// ResultTopicPath is the base string used for the aggregation results
-	ResultTopicPath 		string
+	ResultTopicPath string
 	// JobTopicPath is the base string used for the aggregation requests
-	JobTopicPath 			string
+	JobTopicPath string
 )
 
 func init() {
-	ProposalTopicPath		= fmt.Sprintf("%v.proposal", TopicPath)
-	ResultTopicPath 		= fmt.Sprintf("%v.result", TopicPath)
-	JobTopicPath 			= fmt.Sprintf("%v.request", TopicPath)
+	ProposalTopicPath = fmt.Sprintf("%v.proposal", TopicPath)
+	ResultTopicPath = fmt.Sprintf("%v.result", TopicPath)
+	JobTopicPath = fmt.Sprintf("%v.request", TopicPath)
 }
 
 // JobTopic format a topic name for a given job and round
 func JobTopic(roundID protocol.ID, workerID protocol.ID) string {
-	return fmt.Sprintf("%v.%v.%v", 
-		JobTopicPath, 
-		roundID, 
+	return fmt.Sprintf("%v.%v.%v",
+		JobTopicPath,
+		roundID,
 		workerID,
 	)
 }
@@ -53,26 +53,26 @@ func ProposalTopic(roundID protocol.ID) string {
 
 // TopicProvider is a helper to interact with topics in a friendly way
 type TopicProvider struct {
-	Network 	network.PubSub
-	Round		*Round
+	Network network.PubSub
+	Round   *Round
 }
 
 // ProposalTopic returns the appropriate result topic
-func (t *TopicProvider) ProposalTopic(ctx context.Context) (network.Topic) {
+func (t *TopicProvider) ProposalTopic(ctx context.Context) network.Topic {
 	return t.Network.GetTopic(
 		ctx, ProposalTopic(t.Round.ID),
 	)
 }
 
 // JobTopic returns the appropriate job topic
-func (t *TopicProvider) JobTopic(ctx context.Context, ID protocol.ID) (network.Topic) {
+func (t *TopicProvider) JobTopic(ctx context.Context, ID protocol.ID) network.Topic {
 	return t.Network.GetTopic(
 		ctx, JobTopic(t.Round.ID, ID),
 	)
 }
 
 // ResultTopic in the appropriate result topic
-func (t *TopicProvider) ResultTopic(ctx context.Context, label int) (network.Topic) {
+func (t *TopicProvider) ResultTopic(ctx context.Context, label int) network.Topic {
 	return t.Network.GetTopic(
 		ctx, ResultTopic(t.Round.ID, label),
 	)

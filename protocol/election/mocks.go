@@ -1,6 +1,6 @@
 package election
 
-import(
+import (
 	"github.com/AlexandreBelling/go-boojum/aggregator"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	//log "github.com/sirupsen/logrus"
@@ -8,15 +8,15 @@ import(
 
 // BCClientMock is a mock for a blockchain
 type BCClientMock struct {
-	Participants 	[]BCUser
-	Batch 	 		[][]byte
-	BatchSize		int
+	Participants []BCUser
+	Batch        [][]byte
+	BatchSize    int
 }
 
 // MakeBCClientMock return a blockchain mock object
 func MakeBCClientMock(batchSize int) *BCClientMock {
 	return &BCClientMock{
-		BatchSize: 		batchSize,
+		BatchSize: batchSize,
 	}
 }
 
@@ -25,8 +25,8 @@ func MakeBCClientMock(batchSize int) *BCClientMock {
 func (mock *BCClientMock) GenerateBatch(boojum aggregator.Aggregator) {
 	leaf := boojum.MakeExample()
 	mock.Batch = make([][]byte, mock.BatchSize)
-	
-	for i:=0; i<mock.BatchSize; i++ {
+
+	for i := 0; i < mock.BatchSize; i++ {
 		mock.Batch[i] = leaf
 	}
 }
@@ -41,14 +41,14 @@ func (mock *BCClientMock) Connect(blockchainInterface *BCUser) {
 // tx argument is never read and is supposed to be sent to nil
 func (mock BCClientMock) SendTransactionRetry(tx *ethtypes.Transaction) {
 	for _, participant := range mock.Participants {
-		participant.BatchDone 	<- true
-		participant.NewBatch 	<- mock.Batch 
+		participant.BatchDone <- true
+		participant.NewBatch <- mock.Batch
 	}
 }
 
 // NewBatch initiate the test
 func (mock *BCClientMock) NewBatch() {
 	for _, participant := range mock.Participants {
-		participant.NewBatch 	<- mock.Batch 
+		participant.NewBatch <- mock.Batch
 	}
 }

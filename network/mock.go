@@ -1,8 +1,8 @@
 package network
 
 import (
-	"sync"
 	"bytes"
+	"sync"
 )
 
 // MockNetwork ..
@@ -28,24 +28,24 @@ func (net *MockNetwork) GetConnexion(address string) chan []byte {
 
 // MockWhiteListProvider is a backend that retrieves a list of authorized peers
 type MockWhiteListProvider struct {
-	mutChan 	sync.Mutex
-	peersChan 	[]chan[][]byte
-	
-	mutPeers	sync.RWMutex
-	peers 		[][]byte
+	mutChan   sync.Mutex
+	peersChan []chan [][]byte
+
+	mutPeers sync.RWMutex
+	peers    [][]byte
 }
 
 // NewMockWhiteListProvider ....
 func NewMockWhiteListProvider() *MockWhiteListProvider {
 	return &MockWhiteListProvider{
-		peersChan:	[]chan[][]byte{},
-		peers:		[][]byte{},
+		peersChan: []chan [][]byte{},
+		peers:     [][]byte{},
 	}
 }
 
 // GetPeersChan ....
 func (m *MockWhiteListProvider) GetPeersChan() (chan [][]byte, error) {
-	res := make(chan[][]byte, 32)
+	res := make(chan [][]byte, 32)
 
 	m.mutChan.Lock()
 	defer m.mutChan.Unlock()
@@ -75,7 +75,7 @@ func (m *MockWhiteListProvider) Rm(p []byte) {
 
 	old := m.peers
 	new := [][]byte{}
-	
+
 	for _, q := range old {
 		if bytes.Equal(p, q) {
 			continue

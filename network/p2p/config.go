@@ -18,7 +18,7 @@ func Identity(pkPath string) (libp2p.Option, error) {
 	pkStr := string(pkRaw)
 	pkStr = strings.TrimRight(pkStr, "\n")
 	pkStr = strings.TrimRight(pkStr, "\r")
-	
+
 	pk, err := crypto.UnmarshalSecp256k1PrivateKey([]byte(pkStr))
 	if err != nil {
 		return nil, err

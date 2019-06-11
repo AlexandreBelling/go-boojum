@@ -5,25 +5,25 @@ import (
 
 	// log "github.com/sirupsen/logrus"
 
-	"github.com/AlexandreBelling/go-boojum/protocol"
 	"github.com/AlexandreBelling/go-boojum/network"
+	"github.com/AlexandreBelling/go-boojum/protocol"
 )
 
-// Node contains data for each node of the aggregation tree 
+// Node contains data for each node of the aggregation tree
 type Node struct {
-	Tree					*protocol.Tree
-	Label					int
-	AggregateProof			[]byte
+	Tree           *protocol.Tree
+	Label          int
+	AggregateProof []byte
 
-	mut						sync.RWMutex
-	readiness				int
-	arity					int
+	mut       sync.RWMutex
+	readiness int
+	arity     int
 
 	// This should not have access the lock
-	hookOnReadinessUpdate 	NodeHook 
-	hookOnRootProofUpdate 	NodeHook
+	hookOnReadinessUpdate NodeHook
+	hookOnRootProofUpdate NodeHook
 
-	Topic					network.Topic
+	Topic network.Topic
 }
 
 // SetAggregateProof set the aggregation field and update the readiness of its parent
@@ -61,8 +61,8 @@ func (n *Node) Job() *Job {
 	}
 
 	return &Job{
-		InputProofs: 	inputProofs,
-		Label:			n.Label,
+		InputProofs: inputProofs,
+		Label:       n.Label,
 	}
 }
 
@@ -92,10 +92,10 @@ func makeNodeInitializer() protocol.TreeFunc {
 		}
 
 		t.Node = &Node{
-			Tree: 			t,
-			Label:			counter(), // Gives a unique label to each node
-			arity:			arity,
-			readiness: 		0,
+			Tree:      t,
+			Label:     counter(), // Gives a unique label to each node
+			arity:     arity,
+			readiness: 0,
 		}
 	}
 }
@@ -116,4 +116,3 @@ func makeNodeMapperByLabel() (protocol.TreeFunc, func() map[int]*Node) {
 
 	return mapNode, getNodeMap
 }
-
