@@ -4,7 +4,9 @@ go 1.12
 
 require (
 	github.com/allegro/bigcache v1.2.0 // indirect
+	github.com/aristanetworks/goarista v0.0.0-20190607111240-52c2a7864a08 // indirect
 	github.com/btcsuite/btcd v0.0.0-20190523000118-16327141da8c
+	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/ethereum/go-ethereum v1.8.27
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/golang/protobuf v1.3.1
@@ -24,6 +26,7 @@ require (
 	github.com/libp2p/go-libp2p-transport v0.0.4 // indirect
 	github.com/libp2p/go-testutil v0.0.1 // indirect
 	github.com/multiformats/go-multiaddr v0.0.4
+	github.com/rs/cors v1.6.0 // indirect
 	github.com/sirupsen/logrus v1.4.1
 	github.com/spf13/pflag v1.0.3
 	github.com/spf13/viper v1.3.2
