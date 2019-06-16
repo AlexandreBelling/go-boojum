@@ -15,7 +15,7 @@ func main() {
 	const batchSize = 32
 
 	networks := p2p.MakeServers(n)
-	boojum := &aggregator.MockAggregator{} // It is stateless therefore safe to copy
+	boojum := &aggregator.NewBoojum().WithDir() // It is stateless therefore safe to copy
 	blockchain := election.MakeBCClientMock(batchSize)
 	blockchain.GenerateBatch(boojum)
 	memberProvider := &protocol.DefaultMembersProvider{
