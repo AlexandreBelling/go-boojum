@@ -56,7 +56,7 @@ func main() {
 		)
 	}
 
-	time.Sleep(time.Duration(10) * time.Second)
+	time.Sleep(time.Duration(3) * time.Second)
 	for _, p := range participants {
 		p.Start()
 	}

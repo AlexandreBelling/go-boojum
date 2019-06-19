@@ -60,6 +60,8 @@ func (i IDList) SmallestHigherThan(id identity.ID) (int, identity.ID) {
 	bestValueBig := bestValue.Big()
 	for currentPosition, currentValue := range i[bestPosition+1:] {
 
+		println("Hello there")
+
 		currentValueBig := currentValue.Big()
 		if referenceIDBig.Cmp(currentValueBig) == 1 && bestValueBig.Cmp(currentValueBig) == -1 {
 
@@ -75,8 +77,12 @@ func (i IDList) SmallestHigherThan(id identity.ID) (int, identity.ID) {
 // FirstHigherThan returns the first record in IDList higher than a given reference identity.ID.
 func (i IDList) FirstHigherThan(id identity.ID) (int, identity.ID) {
 
+	
 	referenceIDBig := id.Big()
+	println("Hello there")
 	for currentPosition, current := range i {
+
+		println("Hello there")
 
 		currentBig := current.Big()
 		if referenceIDBig.Cmp(currentBig) == 1 {

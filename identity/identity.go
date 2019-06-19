@@ -104,8 +104,9 @@ func (pub *PubKey) ID() ID {
 
 // Big returns a big.Int representation of the ID
 func (id *ID) Big() *big.Int {
-	var x *big.Int
-	x.SetBytes([]byte(*id))
+	x := big.NewInt(0)
+	b := []byte(*id)
+	x.SetBytes(b[:32])
 	return x
 }
 
