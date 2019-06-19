@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 	"context"
 
 	log "github.com/sirupsen/logrus"
@@ -42,6 +43,10 @@ func main() {
 		addr := fmt.Sprintf("/ip4/127.0.0.1/tcp/%v", 9000+index)
 		s, _ := p2p.NewServerWithID(wlp, id, addr)
 
+		pi := s.GetPeerInfo()
+		marshalled, _ := pi.MarshalJSON()
+		wlp.Add(marshalled)
+
 		participants[index] = election.NewParticipant(context.Background(),
 			id.ID(),
 			boojum,
@@ -49,6 +54,11 @@ func main() {
 			blockchain.CreateAgent(),
 			s,
 		)
+	}
+
+	time.Sleep(time.Duration(10) * time.Second)
+	for _, p := range participants {
+		p.Start()
 	}
 
 	blockchain.NewBatch()

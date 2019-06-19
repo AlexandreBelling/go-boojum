@@ -36,6 +36,8 @@ func NewRound(ctx context.Context, par *Participant, batch [][]byte) *Round {
 		Members: par.MemberProvider.GetMembers(),
 	}
 
+	log.Infof("Members are : %v", r.Members)
+
 	return r.WithTopicProvider()
 }
 

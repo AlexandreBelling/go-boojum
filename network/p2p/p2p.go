@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-pubsub"
 
@@ -52,6 +53,14 @@ func NewServerWithID(wlp network.WhiteListProvider, priv *identity.PrivKey, addr
 // Start the server
 func (s *Server) Start() {
 	s.Bootstrap.Start()
+}
+
+// GetPeerInfo returns the marshalled peer info of the server
+func (s *Server) GetPeerInfo() peer.AddrInfo {
+	return peer.AddrInfo{
+		ID:    s.Host.ID(),
+		Addrs: s.Host.Addrs(),
+	}
 }
 
 // GetTopic returns a topic

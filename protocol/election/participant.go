@@ -55,7 +55,6 @@ func (par *Participant) background() {
 	for {
 		batch := par.BatchPubSub.NextNewBatch(par.ctx)
 		NewRound(par.ctx, par, batch).Start()
-		par.BatchPubSub.NextBatchDone(par.ctx)
 
 		select{
 		case <-par.ctx.Done():
