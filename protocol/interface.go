@@ -2,13 +2,14 @@ package protocol
 
 import (
 	// log "github.com/sirupsen/logrus"
-	"github.com/AlexandreBelling/go-boojum/network"
 	"github.com/libp2p/go-libp2p-core/peer"
+	"github.com/AlexandreBelling/go-boojum/network"
+	"github.com/AlexandreBelling/go-boojum/identity"
 )
 
 // MemberProvider is a helper for getting co-peers in permissioned network
 type MemberProvider interface {
-	GetMembers() []ID
+	GetMembers() []identity.ID
 }
 
 // DefaultMembersProvider is an implementation of MembersProvider
@@ -17,21 +18,14 @@ type DefaultMembersProvider struct {
 }
 
 // GetMembers return the list of all the members
-func (d *DefaultMembersProvider) GetMembers() []ID {
+func (d *DefaultMembersProvider) GetMembers() []identity.ID {
 	pis, _ := d.WLP.GetPeers()
-	members := make([]ID, len(pis))
+	members := make([]identity.ID, len(pis))
 	for index, pi := range pis {
 		piUnmarshalled := &peer.AddrInfo{}
 		_ = piUnmarshalled.UnmarshalJSON(pi)
-		copy(members[index][:32], piUnmarshalled.ID)
+		members[index] = identity.ID(piUnmarshalled.ID)
 	}
 	return members
 }
 
-// PeerIDtoProtocolID converts a libp2p peer.ID to an ID
-func PeerIDtoProtocolID(id peer.ID) ID {
-	var res ID
-	idByte, _ := id.Marshal()
-	copy(res[:], idByte)
-	return res
-}

@@ -186,6 +186,6 @@ func (l *Leader) ListenForProposal() error {
 
 // PublishOnChain sends the aggregated proof on-chain
 func (l *Leader) PublishOnChain(aggregatedProof []byte) {
-	l.Round.Participant.Blockchain.PublishAggregated(aggregatedProof)
+	l.Round.Participant.BatchPubSub.PublishAggregated(aggregatedProof)
 	// log.Infof("Published the result onchain")
 }

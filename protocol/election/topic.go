@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/AlexandreBelling/go-boojum/network"
-	"github.com/AlexandreBelling/go-boojum/protocol"
+	"github.com/AlexandreBelling/go-boojum/identity"
 )
 
 var (
@@ -26,7 +26,7 @@ func init() {
 }
 
 // JobTopic format a topic name for a given job and round
-func JobTopic(roundID protocol.ID, workerID protocol.ID) string {
+func JobTopic(roundID identity.ID, workerID identity.ID) string {
 	return fmt.Sprintf("%v.%v.%v",
 		JobTopicPath,
 		roundID,
@@ -35,7 +35,7 @@ func JobTopic(roundID protocol.ID, workerID protocol.ID) string {
 }
 
 // ResultTopic format a topic name for a given result
-func ResultTopic(roundID protocol.ID, label int) string {
+func ResultTopic(roundID identity.ID, label int) string {
 	return fmt.Sprintf("%v.%v.%v",
 		ResultTopicPath,
 		roundID,
@@ -44,7 +44,7 @@ func ResultTopic(roundID protocol.ID, label int) string {
 }
 
 // ProposalTopic format a topic name for a new proposal
-func ProposalTopic(roundID protocol.ID) string {
+func ProposalTopic(roundID identity.ID) string {
 	return fmt.Sprintf("%v.%v",
 		ProposalTopicPath,
 		roundID,
@@ -65,7 +65,7 @@ func (t *TopicProvider) ProposalTopic(ctx context.Context) network.Topic {
 }
 
 // JobTopic returns the appropriate job topic
-func (t *TopicProvider) JobTopic(ctx context.Context, ID protocol.ID) network.Topic {
+func (t *TopicProvider) JobTopic(ctx context.Context, ID identity.ID) network.Topic {
 	return t.Network.GetTopic(
 		ctx, JobTopic(t.Round.ID, ID),
 	)
@@ -87,7 +87,7 @@ func (t *TopicProvider) PublishProposal(p *Proposal) error {
 }
 
 // PublishJob to make a worker do it
-func (t *TopicProvider) PublishJob(j *Job, ID protocol.ID) error {
+func (t *TopicProvider) PublishJob(j *Job, ID identity.ID) error {
 	return t.Network.Publish(
 		JobTopic(t.Round.ID, ID),
 		j.Encode(),

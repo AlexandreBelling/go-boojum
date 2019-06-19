@@ -5,8 +5,9 @@ import (
 
 	// log "github.com/sirupsen/logrus"
 
+	"github.com/AlexandreBelling/go-boojum/identity"
 	"github.com/AlexandreBelling/go-boojum/aggregator"
-	"github.com/AlexandreBelling/go-boojum/blockchain"
+	// "github.com/AlexandreBelling/go-boojum/blockchain"
 	net "github.com/AlexandreBelling/go-boojum/network"
 	"github.com/AlexandreBelling/go-boojum/protocol"
 )
@@ -15,17 +16,33 @@ import (
 type Participant struct {
 	ctx context.Context
 
-	ID             protocol.ID
+	ID             identity.ID
 	MemberProvider protocol.MemberProvider
+
 	Network        net.PubSub
-	Blockchain     *BCUser
+	BatchPubSub    BatchPubSub
 	Aggregator     aggregator.Aggregator
 }
 
 // NewParticipant ..
-func NewParticipant(ctx context.Context) *Participant {
+func NewParticipant(
+	ctx 				context.Context,
+	id					identity.ID,
+	aggregator	 		aggregator.Aggregator,
+	memberProvider 		protocol.MemberProvider,
+	batchPubSub			BatchPubSub,
+	network				net.PubSub,
+
+	) *Participant {
 	return &Participant{
-		ctx: ctx,
+		ctx: 				ctx,
+
+		MemberProvider:		memberProvider,
+		ID:					id,
+
+		Network:			network,		
+		BatchPubSub:		batchPubSub,
+		Aggregator:			aggregator,
 	}
 }
 
@@ -36,32 +53,13 @@ func (par *Participant) Start() {
 
 func (par *Participant) background() {
 	for {
-		select {
-		case batch := <-par.Blockchain.NewBatch:
-			round := NewRound(par.ctx, par, batch)
-			round.Start()
+		batch := par.BatchPubSub.NextNewBatch(par.ctx)
+		NewRound(par.ctx, par, batch).Start()
+		par.BatchPubSub.NextBatchDone(par.ctx)
+
+		select{
 		case <-par.ctx.Done():
 			return
 		}
 	}
-}
-
-// SetNetwork ..
-func (par *Participant) SetNetwork(network net.PubSub) {
-	par.Network = network
-}
-
-// SetMemberProvider ...
-func (par *Participant) SetMemberProvider(provider protocol.MemberProvider) {
-	par.MemberProvider = provider
-}
-
-// SetBCInterface ..
-func (par *Participant) SetBCInterface(blockchain blockchain.Client) {
-	par.Blockchain = NewBCUser(blockchain)
-}
-
-// SetAggregator ..
-func (par *Participant) SetAggregator(aggregator aggregator.Aggregator) {
-	par.Aggregator = aggregator
 }

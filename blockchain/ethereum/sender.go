@@ -141,4 +141,9 @@ func (s *Sender) Sign(tx *types.Transaction) error {
 		return err
 	}
 	return nil
-} 
+}
+
+// SendTransaction sends a transaction on the blockchain
+func (s *Sender) SendTransaction(tx *Transaction) {
+
+}

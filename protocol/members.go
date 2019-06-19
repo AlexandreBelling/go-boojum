@@ -1,10 +1,14 @@
 package protocol
 
-// IDList is a wrapper for a list of ID
-type IDList []ID
+import (
+	"github.com/AlexandreBelling/go-boojum/identity"
+)
 
-// Min returns the position of the ID with the smallest bigint representation
-func (i IDList) Min() (int, ID) {
+// IDList is a wrapper for a list of identity.ID
+type IDList []identity.ID
+
+// Min returns the position of the identity.ID with the smallest bigint representation
+func (i IDList) Min() (int, identity.ID) {
 
 	bestPosition, bestValue := 0, i[0]
 	bestValueBig := bestValue.Big()
@@ -22,8 +26,8 @@ func (i IDList) Min() (int, ID) {
 	return bestPosition, bestValue
 }
 
-// Max returns the position of the ID with the biggest bigint representation
-func (i IDList) Max() (int, ID) {
+// Max returns the position of the identity.ID with the biggest bigint representation
+func (i IDList) Max() (int, identity.ID) {
 
 	bestPosition, bestValue := 0, i[0]
 	bestValueBig := bestValue.Big()
@@ -41,10 +45,10 @@ func (i IDList) Max() (int, ID) {
 	return bestPosition, bestValue
 }
 
-// SmallestHigherThan return the smallest ID that is higher
-// than a given ID. Returns the minimum if no records are higher
-// than the given ID
-func (i IDList) SmallestHigherThan(id ID) (int, ID) {
+// SmallestHigherThan return the smallest identity.ID that is higher
+// than a given identity.ID. Returns the minimum if no records are higher
+// than the given identity.ID
+func (i IDList) SmallestHigherThan(id identity.ID) (int, identity.ID) {
 
 	bestPosition, bestValue := i.FirstHigherThan(id)
 
@@ -68,8 +72,8 @@ func (i IDList) SmallestHigherThan(id ID) (int, ID) {
 	return bestPosition, bestValue
 }
 
-// FirstHigherThan returns the first record in IDList higher than a given reference ID.
-func (i IDList) FirstHigherThan(id ID) (int, ID) {
+// FirstHigherThan returns the first record in IDList higher than a given reference identity.ID.
+func (i IDList) FirstHigherThan(id identity.ID) (int, identity.ID) {
 
 	referenceIDBig := id.Big()
 	for currentPosition, current := range i {
@@ -79,5 +83,5 @@ func (i IDList) FirstHigherThan(id ID) (int, ID) {
 			return currentPosition, current
 		}
 	}
-	return -1, ID{}
+	return -1, ""
 }

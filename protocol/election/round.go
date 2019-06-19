@@ -5,6 +5,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/AlexandreBelling/go-boojum/identity"
 	"github.com/AlexandreBelling/go-boojum/protocol"
 )
 
@@ -13,7 +14,7 @@ type Round struct {
 	ctx    context.Context
 	cancel context.CancelFunc
 
-	ID          protocol.ID
+	ID          identity.ID
 	Batch       [][]byte
 	Participant *Participant
 	Members     protocol.IDList
@@ -64,19 +65,14 @@ func (r *Round) Start() {
 }
 
 // GetLeaderID returns the ID and position of the leader
-func (r *Round) GetLeaderID() protocol.ID {
+func (r *Round) GetLeaderID() identity.ID {
 	_, res := r.Members.SmallestHigherThan(r.ID)
 	return res
 }
 
 // WaitForResult waits for the round aggregation result to be published on-chain
 func (r *Round) WaitForResult() {
-	select {
-	case <-r.ctx.Done():
-		return
-	case <-r.Participant.Blockchain.BatchDone:
-		return
-	}
+	r.Participant.BatchPubSub.NextBatchDone(r.ctx)
 }
 
 // Close terminate the round

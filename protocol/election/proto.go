@@ -4,7 +4,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"time"
 
-	"github.com/AlexandreBelling/go-boojum/protocol"
+	"github.com/AlexandreBelling/go-boojum/identity"
 	msg "github.com/AlexandreBelling/go-boojum/protocol/election/messages"
 )
 
@@ -49,7 +49,7 @@ func (m MarshalledJob) Decode() (*Job, error) {
 
 // Proposal contains an data relative to an aggregation proposal
 type Proposal struct {
-	ID       protocol.ID
+	ID       identity.ID
 	Deadline time.Time
 }
 
@@ -83,7 +83,7 @@ func (m MarshalledProposal) Decode() (*Proposal, error) {
 	}
 
 	return &Proposal{
-		ID: protocol.StringToID(p.Id),
+		ID: identity.ID(p.Id),
 		Deadline: time.Unix(
 			p.GetDeadline().Sec,
 			p.GetDeadline().Nsec,
@@ -95,7 +95,7 @@ func (m MarshalledProposal) Decode() (*Proposal, error) {
 type Result struct {
 	Result []byte
 	Label  int
-	ID     protocol.ID
+	ID     identity.ID
 }
 
 // Encode returns a marshalled Result
@@ -129,6 +129,6 @@ func (m MarshalledResult) Decode() (*Result, error) {
 	return &Result{
 		Result: a.Result,
 		Label:  int(a.Label),
-		ID:     protocol.StringToID(a.Id),
+		ID:     identity.ID(a.Id),
 	}, nil
 }
