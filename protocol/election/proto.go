@@ -60,7 +60,7 @@ type MarshalledProposal []byte
 func (p *Proposal) Encode() []byte {
 
 	pb := &msg.AggregationProposal{
-		Id: p.ID.String(),
+		Id: []byte(p.ID),
 		Deadline: &msg.Timestamp{
 			Sec:  p.Deadline.Unix(),
 			Nsec: p.Deadline.UnixNano(),
@@ -105,7 +105,7 @@ func (r *Result) Encode() []byte {
 		Type:   "AggregationResult",
 		Result: r.Result,
 		Label:  int64(r.Label),
-		Id:     r.ID.String(),
+		Id:     []byte(r.ID),
 	}
 
 	marshalled, err := proto.Marshal(pb)

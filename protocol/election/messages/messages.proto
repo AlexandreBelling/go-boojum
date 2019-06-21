@@ -3,7 +3,7 @@ package boojum.protocol.leader_election;
 
 message AggregationProposal {
     string type = 1;
-    string id = 2;
+    bytes id = 2;
     Timestamp deadline = 3;
 }
 
@@ -20,7 +20,7 @@ message AggregationJob {
 
 message AggregationResult {
     string type = 1;
-    string id = 2;
+    bytes id = 2;
     bytes result = 3;
     int64 label = 4;
 }

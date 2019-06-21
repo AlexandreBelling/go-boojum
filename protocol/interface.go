@@ -21,10 +21,10 @@ type DefaultMembersProvider struct {
 func (d *DefaultMembersProvider) GetMembers() []identity.ID {
 	pis, _ := d.WLP.GetPeers()
 	members := make([]identity.ID, len(pis))
-	for index, pi := range pis {
-		piUnmarshalled := &peer.AddrInfo{}
-		_ = piUnmarshalled.UnmarshalJSON(pi)
-		members[index] = identity.ID(piUnmarshalled.ID)
+	for index, b := range pis {
+		pi := peer.AddrInfo{}
+		_ = pi.UnmarshalJSON(b)
+		members[index] = identity.ID(pi.ID)
 	}
 	return members
 }

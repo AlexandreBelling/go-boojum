@@ -53,12 +53,10 @@ func (par *Participant) Start() {
 
 func (par *Participant) background() {
 	for {
-		batch := par.BatchPubSub.NextNewBatch(par.ctx)
-		NewRound(par.ctx, par, batch).Start()
-
-		select{
-		case <-par.ctx.Done():
+		batch, err := par.BatchPubSub.NextNewBatch(par.ctx)
+		if err != nil {
 			return
 		}
+		NewRound(par.ctx, par, batch).Start()
 	}
 }

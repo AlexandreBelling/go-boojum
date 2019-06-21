@@ -81,7 +81,7 @@ func (l *Leader) MakeJobHandler(n *Node) (Task, error) {
 
 	resultChan, err := rtopic.Chan()
 	if err != nil {
-		log.Infof("Got an error there")
+		log.Infof("Got getting chan result for %v", n.Label)
 		return nil, err
 	}
 
@@ -90,6 +90,7 @@ func (l *Leader) MakeJobHandler(n *Node) (Task, error) {
 		ctx, cancel := context.WithTimeout(ctx, time.Duration(1)*time.Minute)
 		defer cancel()
 
+		log.Debugf("Publish for job %v", n.Label)
 		err = l.Round.TopicProvider.PublishJob(n.Job(), p.ID)
 		if err != nil {
 			return err
@@ -97,7 +98,7 @@ func (l *Leader) MakeJobHandler(n *Node) (Task, error) {
 
 		select {
 		case <-ctx.Done():
-			log.Infof("Timed out on a specific job")
+			log.Infof("Timed out on a specific job: %v", n.Label)
 			return ctx.Err()
 
 		case r := <-resultChan:
@@ -107,7 +108,7 @@ func (l *Leader) MakeJobHandler(n *Node) (Task, error) {
 			}
 
 			go n.SetAggregateProof(result.Result)
-			log.Infof("Got an aggregated result")
+			log.Debugf("Got an aggregated result for job %v", n.Label)
 			return nil
 		}
 	}
@@ -186,6 +187,6 @@ func (l *Leader) ListenForProposal() error {
 
 // PublishOnChain sends the aggregated proof on-chain
 func (l *Leader) PublishOnChain(aggregatedProof []byte) {
-	l.Round.Participant.BatchPubSub.PublishAggregated(aggregatedProof)
-	// log.Infof("Published the result onchain")
+	l.Round.Participant.BatchPubSub.PublishAggregated(l.ctx, aggregatedProof)
+	log.Debugf("Published the result onchain")
 }

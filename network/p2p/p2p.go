@@ -40,7 +40,7 @@ func NewServerWithID(wlp network.WhiteListProvider, priv *identity.PrivKey, addr
 	ps, err := pubsub.NewGossipSub(context.Background(), hs)
 	bstr := NewBoostrappingRoutine(
 		context.Background(), hs, wlp, 5, 9,
-		time.Duration(1)*time.Minute,
+		time.Duration(2)*time.Second,
 	)
 
 	return &Server{
@@ -65,7 +65,6 @@ func (s *Server) GetPeerInfo() peer.AddrInfo {
 
 // GetTopic returns a topic
 func (s *Server) GetTopic(ctx context.Context, topic string) network.Topic {
-
 	res := Topic{
 		ctx: ctx,
 

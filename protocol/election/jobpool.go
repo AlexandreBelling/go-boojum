@@ -64,7 +64,7 @@ func (j *JobPool) addJobSync(jobctx context.Context, task Task) {
 		select {
 		default:
 			propal, _ := j.DequeueProposal(j.ctx)
-			log.Infof("Got proposal from : %v", propal.ID)
+			log.Infof("Got proposal from : %v", propal.ID.Pretty())
 			err := task(jobctx, propal)
 			if err == nil {
 				return

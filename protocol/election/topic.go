@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/AlexandreBelling/go-boojum/network"
 	"github.com/AlexandreBelling/go-boojum/identity"
 )
@@ -29,7 +30,7 @@ func init() {
 func JobTopic(roundID identity.ID, workerID identity.ID) string {
 	return fmt.Sprintf("%v.%v.%v",
 		JobTopicPath,
-		roundID,
+		roundID.Pretty(),
 		workerID,
 	)
 }
@@ -38,7 +39,7 @@ func JobTopic(roundID identity.ID, workerID identity.ID) string {
 func ResultTopic(roundID identity.ID, label int) string {
 	return fmt.Sprintf("%v.%v.%v",
 		ResultTopicPath,
-		roundID,
+		roundID.Pretty(),
 		label,
 	)
 }
@@ -47,7 +48,7 @@ func ResultTopic(roundID identity.ID, label int) string {
 func ProposalTopic(roundID identity.ID) string {
 	return fmt.Sprintf("%v.%v",
 		ProposalTopicPath,
-		roundID,
+		roundID.Pretty(),
 	)
 }
 
@@ -59,6 +60,7 @@ type TopicProvider struct {
 
 // ProposalTopic returns the appropriate result topic
 func (t *TopicProvider) ProposalTopic(ctx context.Context) network.Topic {
+	log.Debugf("Subscribed to topic %v", ProposalTopic(t.Round.ID))
 	return t.Network.GetTopic(
 		ctx, ProposalTopic(t.Round.ID),
 	)
@@ -80,6 +82,7 @@ func (t *TopicProvider) ResultTopic(ctx context.Context, label int) network.Topi
 
 // PublishProposal to alert the leader, we are ready
 func (t *TopicProvider) PublishProposal(p *Proposal) error {
+	log.Debugf("Sending a proposal in topic %v", ProposalTopic(t.Round.ID))
 	return t.Network.Publish(
 		ProposalTopic(t.Round.ID),
 		p.Encode(),

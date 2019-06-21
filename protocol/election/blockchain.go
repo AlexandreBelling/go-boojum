@@ -2,16 +2,19 @@ package election
 
 import (
 	"context"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // BatchPubSub is the blockchain interface of participant 
 type BatchPubSub interface {
 	// PublishAggregated publish the proof aggregate on the blockchain
-	PublishAggregated(aggregated []byte)
+	// It should be no fail
+	PublishAggregated(context.Context, []byte) error
 	// NextNewBatch waits and returns the next new batch. 
-	NextNewBatch(context.Context) [][]byte
+	NextNewBatch(context.Context) ([][]byte, error)
 	// NextBatchDone block and waits untils the current aggregation step is over.
-	NextBatchDone(context.Context)
+	NextBatchDone(context.Context) error
 }
 
 // MockBlockchain simulate a blockchain for tests
@@ -51,32 +54,37 @@ func (m *MockBlockchain) NewBatch() {
 }
 
 // PublishAggregated builds a new agent and link it to the others
-func (m *MockBlockchain) PublishAggregated() {
+func (m *MockBlockchain) PublishAggregated() error {
 	for _, agent := range m.agents {
+		log.Infof("Publishing a new proof")
 		agent.batchesDone <- struct{}{}
 	}
 	m.NewBatch()
+	return nil
 }
 
 // NextBatchDone blocks until any agent triggers publish aggregated
-func (b *MockBatchPS) NextBatchDone(ctx context.Context) {
+func (b *MockBatchPS) NextBatchDone(ctx context.Context) error {
 	select{
 	case <- ctx.Done():
-	case <- b.batchesDone:	
+		return ctx.Err()
+	case <- b.batchesDone:
+		return nil
 	}
 }
 
 // NextNewBatch blocks until a new batch is available
-func (b *MockBatchPS) NextNewBatch(ctx context.Context) [][]byte {
+func (b *MockBatchPS) NextNewBatch(ctx context.Context) ([][]byte, error) {
 	select{
 	case <- ctx.Done():
-		return [][]byte{}
+		return [][]byte{}, ctx.Err()
 	case batch := <- b.newBatches:
-		return batch
+		return batch, nil
 	}
 }
 
 // PublishAggregated publish that a new batch have been aggregated
-func (b *MockBatchPS) PublishAggregated(aggregated []byte) {
+func (b *MockBatchPS) PublishAggregated(ctx context.Context, aggregated []byte) error {
 	b.blockchain.PublishAggregated()
+	return nil
 }

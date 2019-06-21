@@ -72,6 +72,7 @@ func (r *Round) GetLeaderID() identity.ID {
 // WaitForResult waits for the round aggregation result to be published on-chain
 func (r *Round) WaitForResult() {
 	r.Participant.BatchPubSub.NextBatchDone(r.ctx)
+	log.Debugf("Found batch result, round is finished")
 }
 
 // Close terminate the round

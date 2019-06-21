@@ -12,7 +12,7 @@ import (
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-pubsub"
 
-	bnetwork "github.com/AlexandreBelling/go-boojum/network"
+	"github.com/AlexandreBelling/go-boojum/network"
 )
 
 // RandomIdentity ...
@@ -22,7 +22,7 @@ func RandomIdentity() libp2p.Option {
 }
 
 // DefaultServer ...
-func DefaultServer(addr string, wlp bnetwork.WhiteListProvider) (*Server, error) {
+func DefaultServer(addr string, wlp network.WhiteListProvider) (*Server, error) {
 
 	listenAddr, err := ListenAddress(addr)
 	if err != nil {
@@ -54,7 +54,7 @@ func MakeServers(n int) []*Server {
 	defer time.Sleep(time.Duration(5) * time.Second)
 
 	servers := make([]*Server, n)
-	wlp := bnetwork.NewMockWhiteListProvider()
+	wlp := network.NewMockWhiteListProvider()
 
 	for i := 0; i < n; i++ {
 

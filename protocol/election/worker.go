@@ -30,8 +30,9 @@ func NewWorker(r *Round) *Worker {
 func (w *Worker) Aggregate(job *Job) (*Result, error) {
 
 	if len(job.InputProofs) < 2 {
-		log.Infof("Wtf happened got a poorly created proof : %v",
+		log.Infof("Wtf happened got a poorly created proof : %v, label : %v",
 			job.InputProofs,
+			job.Label,
 		)
 		return nil, fmt.Errorf("Got an improper job")
 	}
@@ -73,7 +74,6 @@ func (w *Worker) Start() error {
 		for {
 
 			err := w.PublishProposal()
-			log.Info("Just sent a proposal")
 			if err != nil {
 				return
 			}

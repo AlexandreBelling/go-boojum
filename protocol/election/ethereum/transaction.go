@@ -12,9 +12,9 @@ type Agent struct {
 
 // NotifyOnNewBatch implements blockchain.Notification and 
 // verifies if the transaction triggers a new batch and callback the Participant if so
-func (e *EthereumAgent) NotifyOnNewBatch(blockchain.Transaction) {}
+func (e *Agent) NotifyOnNewBatch(ethereum.Transaction) {}
 
 // NotifyOnBatchDone implements blockchain.Notification and
 // verifies if a transaction indicate that an aggregation step has been completed
-func (e *EthereumAgent) NotifyOnBatchDone(blockchain.Transaction) {}
+func (e *Agent) NotifyOnBatchDone(ethereum.Transaction) {}
 

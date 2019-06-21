@@ -107,14 +107,17 @@ func (br *BoostrappingRoutine) RunBootstrap() (err error) {
 
 	nConns := len(br.Host.Network().Peers())
 	if nConns < br.minConns {
-		err = br.AddConnections()
+		log.Debugf("Got %v connexion, adding new one to reach the ceil %v", nConns, br.minConns)
+		return br.AddConnections()
 	}
 
 	if nConns > br.maxConns {
-		err = br.PruneConnections()
+		log.Debugf("Got %v connexion, pruning some to reach the floor %v", nConns, br.minConns)
+		return br.PruneConnections()
 	}
 
-	return err
+	log.Debugf("Got %v connexion, keeping it like this", nConns)
+	return nil
 }
 
 // AddConnections add peers until the target is reached
@@ -223,6 +226,7 @@ func (br *BoostrappingRoutine) SetNewWhiteList(newPeers [][]byte) error {
 func (br *BoostrappingRoutine) TrimUnlistedPeers() {
 	for _, connectedPeer := range br.Host.Network().Peers() {
 		if !br.authorized(connectedPeer) {
+			log.Infof("Found a non-whitelisted connection")
 			br.Host.Network().ClosePeer(connectedPeer)
 		}
 	}

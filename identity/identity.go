@@ -110,8 +110,14 @@ func (id *ID) Big() *big.Int {
 	return x
 }
 
+// Pretty returns a prettified version of the id
+func (id *ID) Pretty() string {
+	return (*peer.ID)(id).Pretty()
+}
+
+// String returns a prettified version of the id
 func (id *ID) String() string {
-	return string(*id)
+	return (*peer.ID)(id).Pretty()
 }
 
 // StringToID return an id with a string as input
