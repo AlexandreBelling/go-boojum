@@ -54,7 +54,7 @@ func (t *Topic) Chan() (<-chan []byte, error) {
 
 // Close the subscription
 func (t *Topic) Close() {
-	t.cancelChan()
+	if t.cancelChan != nil { t.cancelChan() }
 	t.Subs.Cancel()
 }
 
