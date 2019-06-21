@@ -6,12 +6,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// BatchPubSub is the blockchain interface of participant 
+// BatchPubSub is the blockchain interface of participant
 type BatchPubSub interface {
 	// PublishAggregated publish the proof aggregate on the blockchain
 	// It should be no fail
 	PublishAggregated(context.Context, []byte) error
-	// NextNewBatch waits and returns the next new batch. 
+	// NextNewBatch waits and returns the next new batch.
 	NextNewBatch(context.Context) ([][]byte, error)
 	// NextBatchDone block and waits untils the current aggregation step is over.
 	NextBatchDone(context.Context) error
@@ -19,28 +19,28 @@ type BatchPubSub interface {
 
 // MockBlockchain simulate a blockchain for tests
 type MockBlockchain struct {
-	agents			[]*MockBatchPS
-	batch			[][]byte
+	agents []*MockBatchPS
+	batch  [][]byte
 }
 
 // MockBatchPS is a mock for blockchain agent
 type MockBatchPS struct {
-	blockchain			*MockBlockchain
-	newBatches			chan [][]byte
-	batchesDone			chan struct{}
+	blockchain  *MockBlockchain
+	newBatches  chan [][]byte
+	batchesDone chan struct{}
 }
 
 // NewMockBlockchain returns a mock of a blockchain
 func NewMockBlockchain(batch [][]byte) *MockBlockchain {
-	return &MockBlockchain{ batch: batch }
+	return &MockBlockchain{batch: batch}
 }
 
 // CreateAgent builds a new agent and link it to the others
 func (m *MockBlockchain) CreateAgent() *MockBatchPS {
 	agent := &MockBatchPS{
-		blockchain: 		m,
-		newBatches: 		make(chan [][]byte, 32),
-		batchesDone:		make(chan struct{}, 32),
+		blockchain:  m,
+		newBatches:  make(chan [][]byte, 32),
+		batchesDone: make(chan struct{}, 32),
 	}
 	m.agents = append(m.agents, agent)
 	return agent
@@ -65,20 +65,20 @@ func (m *MockBlockchain) PublishAggregated() error {
 
 // NextBatchDone blocks until any agent triggers publish aggregated
 func (b *MockBatchPS) NextBatchDone(ctx context.Context) error {
-	select{
-	case <- ctx.Done():
+	select {
+	case <-ctx.Done():
 		return ctx.Err()
-	case <- b.batchesDone:
+	case <-b.batchesDone:
 		return nil
 	}
 }
 
 // NextNewBatch blocks until a new batch is available
 func (b *MockBatchPS) NextNewBatch(ctx context.Context) ([][]byte, error) {
-	select{
-	case <- ctx.Done():
+	select {
+	case <-ctx.Done():
 		return [][]byte{}, ctx.Err()
-	case batch := <- b.newBatches:
+	case batch := <-b.newBatches:
 		return batch, nil
 	}
 }

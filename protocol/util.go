@@ -1,8 +1,8 @@
 package protocol
 
 import (
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/AlexandreBelling/go-boojum/identity"
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 // IDFromBatch gets an ID from the hash of a protocol

@@ -1,25 +1,25 @@
 package ethereum
 
-import(
+import (
+	"context"
+	"github.com/AlexandreBelling/go-boojum/blockchain"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/ethclient"
+	"math/big"
 	"sync"
 	"time"
-	"context"
-	"math/big"
-	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/AlexandreBelling/go-boojum/blockchain"
 )
 
 // Listener is an implementation of blockchain.Listener
 type Listener struct {
-	ctx					context.Context
-	client				*ethclient.Client
+	ctx    context.Context
+	client *ethclient.Client
 
-	blockNumber			uint64
-	refreshPeriod		time.Duration
+	blockNumber   uint64
+	refreshPeriod time.Duration
 
-	Notifications		[]blockchain.Notification
-	notifMut			sync.Mutex
+	Notifications []blockchain.Notification
+	notifMut      sync.Mutex
 }
 
 // AddNotification registers a new notification in the notification list
@@ -37,9 +37,9 @@ func (l *Listener) Start(fromBlockNumber uint64) error {
 func (l *Listener) blockFetchingLoop() {
 	ticker := time.NewTicker(l.refreshPeriod)
 
-	tickerLoop:
-	for{
-		select{
+tickerLoop:
+	for {
+		select {
 		case <-ticker.C:
 
 			newBlockNumber, err := l.GetBlockNumber()
@@ -49,7 +49,7 @@ func (l *Listener) blockFetchingLoop() {
 			}
 
 			// If l.blockNumer == newBlocknumber this loop has no iteration
-			for n:=l.blockNumber+1; n<=newBlockNumber; n++ {
+			for n := l.blockNumber + 1; n <= newBlockNumber; n++ {
 				block, err := l.GetBlock(n)
 				if err != nil {
 					continue tickerLoop
@@ -59,10 +59,10 @@ func (l *Listener) blockFetchingLoop() {
 				l.blockNumber = n
 			}
 
-		case <- l.ctx.Done():
+		case <-l.ctx.Done():
 			ticker.Stop()
 		}
-	} 
+	}
 }
 
 // GetBlockNumber returns the latest value of the blocknumber
@@ -93,4 +93,3 @@ func (l *Listener) ReadThroughNotify(block *types.Block) {
 		l.notifMut.Unlock()
 	}
 }
-

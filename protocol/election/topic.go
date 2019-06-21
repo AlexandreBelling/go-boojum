@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	log "github.com/sirupsen/logrus"
-	"github.com/AlexandreBelling/go-boojum/network"
 	"github.com/AlexandreBelling/go-boojum/identity"
+	"github.com/AlexandreBelling/go-boojum/network"
+	log "github.com/sirupsen/logrus"
 )
 
 var (

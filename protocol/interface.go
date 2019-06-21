@@ -2,9 +2,9 @@ package protocol
 
 import (
 	// log "github.com/sirupsen/logrus"
-	"github.com/libp2p/go-libp2p-core/peer"
-	"github.com/AlexandreBelling/go-boojum/network"
 	"github.com/AlexandreBelling/go-boojum/identity"
+	"github.com/AlexandreBelling/go-boojum/network"
+	"github.com/libp2p/go-libp2p-core/peer"
 )
 
 // MemberProvider is a helper for getting co-peers in permissioned network
@@ -28,4 +28,3 @@ func (d *DefaultMembersProvider) GetMembers() []identity.ID {
 	}
 	return members
 }
-

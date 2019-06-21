@@ -4,13 +4,13 @@ import (
 	"context"
 	"time"
 
-	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/host"
+	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-pubsub"
 
-	"github.com/libp2p/go-libp2p"
-	"github.com/AlexandreBelling/go-boojum/network"
 	"github.com/AlexandreBelling/go-boojum/identity"
+	"github.com/AlexandreBelling/go-boojum/network"
+	"github.com/libp2p/go-libp2p"
 )
 
 // Server ...
@@ -20,7 +20,7 @@ type Server struct {
 	Bootstrap *BoostrappingRoutine
 }
 
-// NewServerWithID returns a server object with 
+// NewServerWithID returns a server object with
 func NewServerWithID(wlp network.WhiteListProvider, priv *identity.PrivKey, addr string) (*Server, error) {
 	listenAddr, err := ListenAddress(addr)
 	if err != nil {

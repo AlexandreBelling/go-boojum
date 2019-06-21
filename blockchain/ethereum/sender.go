@@ -1,68 +1,68 @@
 package ethereum
 
 import (
-	"sync"
 	"context"
-	"math/big"
 	"crypto/ecdsa"
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/ethclient"
+	"math/big"
+	"sync"
 )
 
 type signerType string
 
 const (
-	// Homestead is an identifier to be used to specify 
+	// Homestead is an identifier to be used to specify
 	// the sender we want to use homestead signature
-	Homestead 	signerType = "Homestead"
-	// EIP155 is an identifier to be used to specify 
+	Homestead signerType = "Homestead"
+	// EIP155 is an identifier to be used to specify
 	// the sender we want to use EIP155
-	EIP155		signerType = "EIP155"
+	EIP155 signerType = "EIP155"
 )
 
 // Sender can be provided a private key and use it to sign
 //
 // It is responsible for adding
 type Sender struct {
-	ctx 		context.Context
-	cancel		context.CancelFunc
+	ctx    context.Context
+	cancel context.CancelFunc
 
-	priv 		ecdsa.PrivateKey
-	address		common.Address
+	priv    ecdsa.PrivateKey
+	address common.Address
 
-	client		*ethclient.Client
-	chainID		*big.Int
-	signer		types.Signer
+	client  *ethclient.Client
+	chainID *big.Int
+	signer  types.Signer
 
-	nonce		uint64
-	mutex		sync.Mutex
+	nonce uint64
+	mutex sync.Mutex
 }
 
 // NewSender returns a Sender object
 //
 // It does not include any specific logic aside deriving the adress from the private key
 func NewSender(
-	ctx context.Context, 
-	priv ecdsa.PrivateKey, 
+	ctx context.Context,
+	priv ecdsa.PrivateKey,
 	client *ethclient.Client,
-	signerT signerType, 
+	signerT signerType,
 	chainID *big.Int,
-	) *Sender {
+) *Sender {
 
 	ctx, cancel := context.WithCancel(ctx)
 	pub := priv.Public().(ecdsa.PublicKey)
 
 	sender := &Sender{
-		ctx:		ctx,
-		cancel: 	cancel,
+		ctx:    ctx,
+		cancel: cancel,
 
-		priv:		priv,
-		address:	crypto.PubkeyToAddress(pub),
+		priv:    priv,
+		address: crypto.PubkeyToAddress(pub),
 
-		client:		client,
-		chainID:	chainID,
+		client:  client,
+		chainID: chainID,
 	}
 
 	switch signerT {
@@ -71,7 +71,7 @@ func NewSender(
 	case Homestead:
 		sender.signer = types.HomesteadSigner{}
 	}
-	
+
 	return sender
 }
 
@@ -79,8 +79,8 @@ func NewSender(
 //
 // It sets the nonce and by the same occasion make sure that the remote node is accessible
 func (s *Sender) Start() {
-	go func(){
-		<- s.ctx.Done()
+	go func() {
+		<-s.ctx.Done()
 		s.cancel() // Make sure the cancel function is triggered
 	}()
 
@@ -104,7 +104,7 @@ func (s *Sender) RefreshNonce() error {
 
 // SetSigner fetches the chainID from the client and cache it in the object
 //
-// It is necessary in order to 
+// It is necessary in order to
 func (s *Sender) SetSigner(signerT signerType, chainID *big.Int) error {
 	s.chainID = chainID
 
@@ -137,7 +137,7 @@ func (s *Sender) SendTransactionData(to string, data []byte) error {
 // Sign a transaction in place
 func (s *Sender) Sign(tx *types.Transaction) error {
 	_, err := types.SignTx(tx, s.signer, &s.priv)
-	if err!= nil {
+	if err != nil {
 		return err
 	}
 	return nil

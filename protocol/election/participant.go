@@ -5,8 +5,8 @@ import (
 
 	// log "github.com/sirupsen/logrus"
 
-	"github.com/AlexandreBelling/go-boojum/identity"
 	"github.com/AlexandreBelling/go-boojum/aggregator"
+	"github.com/AlexandreBelling/go-boojum/identity"
 	// "github.com/AlexandreBelling/go-boojum/blockchain"
 	net "github.com/AlexandreBelling/go-boojum/network"
 	"github.com/AlexandreBelling/go-boojum/protocol"
@@ -19,30 +19,30 @@ type Participant struct {
 	ID             identity.ID
 	MemberProvider protocol.MemberProvider
 
-	Network        net.PubSub
-	BatchPubSub    BatchPubSub
-	Aggregator     aggregator.Aggregator
+	Network     net.PubSub
+	BatchPubSub BatchPubSub
+	Aggregator  aggregator.Aggregator
 }
 
 // NewParticipant ..
 func NewParticipant(
-	ctx 				context.Context,
-	id					identity.ID,
-	aggregator	 		aggregator.Aggregator,
-	memberProvider 		protocol.MemberProvider,
-	batchPubSub			BatchPubSub,
-	network				net.PubSub,
+	ctx context.Context,
+	id identity.ID,
+	aggregator aggregator.Aggregator,
+	memberProvider protocol.MemberProvider,
+	batchPubSub BatchPubSub,
+	network net.PubSub,
 
-	) *Participant {
+) *Participant {
 	return &Participant{
-		ctx: 				ctx,
+		ctx: ctx,
 
-		MemberProvider:		memberProvider,
-		ID:					id,
+		MemberProvider: memberProvider,
+		ID:             id,
 
-		Network:			network,		
-		BatchPubSub:		batchPubSub,
-		Aggregator:			aggregator,
+		Network:     network,
+		BatchPubSub: batchPubSub,
+		Aggregator:  aggregator,
 	}
 }
 

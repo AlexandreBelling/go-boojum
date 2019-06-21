@@ -30,7 +30,6 @@ func (t *Topic) Chan() (<-chan []byte, error) {
 	var err error
 
 	t.onceChan.Do(func() {
-
 		subs, err := t.ps.Subscribe(t.Name)
 		if err != nil {
 			return
@@ -54,7 +53,9 @@ func (t *Topic) Chan() (<-chan []byte, error) {
 
 // Close the subscription
 func (t *Topic) Close() {
-	if t.cancelChan != nil { t.cancelChan() }
+	if t.cancelChan != nil {
+		t.cancelChan()
+	}
 	t.Subs.Cancel()
 }
 
@@ -81,16 +82,13 @@ func (t *Topic) background(out chan []byte) {
 		}()
 
 		select {
-
 		case <-t.ctx.Done():
 			return
-
 		case <-errorChan:
 			// It is impossible that this is triggered by a cancellation.
 			// This is truly a pubsub error
 			t.cancelChan() // Destroy the context to avoid leaks
 			return         // Make the rest of the app, aware that there is a problem
-
 		case msg := <-fromSubscription:
 			out <- msg.GetData()
 		}

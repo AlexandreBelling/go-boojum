@@ -1,24 +1,24 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"time"
-	"context"
 
 	log "github.com/sirupsen/logrus"
 
 	"github.com/AlexandreBelling/go-boojum/aggregator"
+	"github.com/AlexandreBelling/go-boojum/identity"
 	"github.com/AlexandreBelling/go-boojum/network"
 	"github.com/AlexandreBelling/go-boojum/network/p2p"
 	"github.com/AlexandreBelling/go-boojum/protocol"
 	"github.com/AlexandreBelling/go-boojum/protocol/election"
-	"github.com/AlexandreBelling/go-boojum/identity"
 )
 
 func makeBatch(agg aggregator.Aggregator, batchSize int) [][]byte {
 	e := agg.MakeExample()
 	res := make([][]byte, batchSize)
-	for i:=0; i<batchSize; i++ {
+	for i := 0; i < batchSize; i++ {
 		res[i] = e
 	}
 	return res
@@ -58,7 +58,7 @@ func main() {
 		)
 	}
 
-	// Start the servers only once they have all been added to 
+	// Start the servers only once they have all been added to
 	for _, s := range p2pServers {
 		s.Start()
 	}

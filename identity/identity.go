@@ -1,14 +1,13 @@
 package identity
 
 import (
-	"strings"
-	"math/big"
-	"io/ioutil"
 	"crypto/ecdsa"
-	"github.com/libp2p/go-libp2p-core/peer"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	p2pcrypto "github.com/libp2p/go-libp2p-core/crypto"
-
+	"github.com/libp2p/go-libp2p-core/peer"
+	"io/ioutil"
+	"math/big"
+	"strings"
 )
 
 // PrivKey is a general purpose identity manager
@@ -22,12 +21,12 @@ type PrivKey ecdsa.PrivateKey
 // It is used to have coercion
 type PubKey ecdsa.PublicKey
 
-// ID is a generique alias for peer.ID compatible 
+// ID is a generique alias for peer.ID compatible
 // It is usefull to avoid a dependency hell
 type ID peer.ID
 
 // Generate returns a generated private key
-func Generate()	*PrivKey {
+func Generate() *PrivKey {
 	res, _ := ethcrypto.GenerateKey()
 	return (*PrivKey)(res)
 }
