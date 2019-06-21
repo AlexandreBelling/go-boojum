@@ -26,10 +26,12 @@ func makeBatch(agg aggregator.Aggregator, batchSize int) [][]byte {
 
 func main() {
 
-	const n = 7
+	const n = 2
 	const batchSize = 25
 
-	boojum := &aggregator.MockAggregator{} // The mock is stateless therefore safe to copy
+	boojum := aggregator.NewBoojum().WithDir("../../aggregator/setup")
+	boojum.RunGenerators()
+	
 	batch := makeBatch(boojum, batchSize)
 	blockchain := election.NewMockBlockchain(batch)
 	wlp := network.NewMockWhiteListProvider()
