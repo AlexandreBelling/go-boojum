@@ -177,7 +177,7 @@ func (l *Leader) ListenForProposal() error {
 					continue
 				}
 				l.JobPool.EnqueueProposal(l.ctx, decoded)
-				log.Infof("Got a new proposal in the listen loop")
+				log.Debugf("Got a new proposal in the listen loop")
 			}
 		}
 	}()

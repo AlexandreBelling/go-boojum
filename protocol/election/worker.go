@@ -94,13 +94,13 @@ func (w *Worker) Start() error {
 				return
 
 			case jobEncoded := <-jobChan:
-				log.Info("Got a job")
 				propCancel()
-
 				job, err := MarshalledJob(jobEncoded).Decode()
 				if err != nil {
 					return
 				}
+
+				log.Infof("Got a job with label %v", job.Label)
 
 				res, err := w.Aggregate(job)
 				if err != nil {
