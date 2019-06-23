@@ -31,7 +31,7 @@ func makeExampleProof(treeBuffer **byte) {
 	var treePtr *byte
 	treePtr = nil
 	treePtrC := (*unsafe.Pointer)(unsafe.Pointer(&treePtr))
-	
+
 	C.make_example_proof(
 		treePtrC,
 	)
@@ -61,7 +61,7 @@ func proveAggregation(
 	*outputBuffer = outputPtr
 }
 
-func verify(treeBuffer *byte) (bool) {
+func verify(treeBuffer *byte) bool {
 	valid := C.verify(
 		unsafe.Pointer(&(*treeBuffer)),
 	)
@@ -73,8 +73,8 @@ func memFree(treeBuffer *byte) {
 	C.free(unsafe.Pointer(treeBuffer))
 }
 
-func toByte(treeBuffer *byte) ([]byte) {
+func toByte(treeBuffer *byte) []byte {
 	treeBufferPtr := unsafe.Pointer(treeBuffer)
 	resCInt := C.buff_len(treeBufferPtr)
-	return C.GoBytes(treeBufferPtr,resCInt)
+	return C.GoBytes(treeBufferPtr, resCInt)
 }

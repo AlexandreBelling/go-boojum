@@ -3,13 +3,13 @@ package network
 import "context"
 
 // PubSub is a generic network interface used y
-type PubSub interface{
+type PubSub interface {
 	GetTopic(ctx context.Context, topic string) Topic
 	Publish(topic string, msg []byte) error
 }
 
 // WhiteListProvider is a backend that retrieves a list of authorized peers
-type WhiteListProvider interface{
+type WhiteListProvider interface {
 	GetPeersChan() (chan [][]byte, error)
 	GetPeers() ([][]byte, error)
 }

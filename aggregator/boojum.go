@@ -36,8 +36,8 @@ func (boo *Boojum) MakeExample() []byte {
 }
 
 // AggregateTrees returns the aggregated tree
-func (boo *Boojum) AggregateTrees(left, right []byte) ([]byte) {
-	
+func (boo *Boojum) AggregateTrees(left, right []byte) []byte {
+
 	// Initialize Tree object
 	leftTree := newTree(boo).SetDataFromBytes(left)
 	rightTree := newTree(boo).SetDataFromBytes(right)
@@ -51,7 +51,7 @@ func (boo *Boojum) AggregateTrees(left, right []byte) ([]byte) {
 
 	res := outputTree.ToByte()
 	return res
-} 
+}
 
 // Verify returns a boolean indicating that a tree is valid
 func (boo *Boojum) Verify(buff []byte) bool {

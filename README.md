@@ -114,12 +114,6 @@ Building the demo
 make docker-build
 ```
 
-Run the basic example (a single process aggregate 8 proofs)
-
-```
-make run-basic
-```
-
 Run the mocked leader-election example
 
 ```

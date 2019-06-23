@@ -1,15 +1,15 @@
 package p2p
 
 import (
-	"sync"
-	"time"
-	"testing"
 	"context"
+	"sync"
+	"testing"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 )
 
-const ( 
+const (
 	nServerTest = 20
 )
 
@@ -21,16 +21,16 @@ func Test(t *testing.T) {
 	topicName := "test"
 
 	var wg sync.WaitGroup
-	consumeMessage := func(i int, in <- chan []byte) {
+	consumeMessage := func(i int, in <-chan []byte) {
 		defer wg.Done()
-		ctx, can := context.WithTimeout(context.Background(), time.Duration(10) * time.Second)
+		ctx, can := context.WithTimeout(context.Background(), time.Duration(10)*time.Second)
 		defer can()
-		
+
 		select {
-		case <- ctx.Done():
+		case <-ctx.Done():
 			t.Fail()
 			return
-		case msg := <- in:
+		case msg := <-in:
 			log.Infof("%v received from %v", string(msg), i)
 			return
 		}
